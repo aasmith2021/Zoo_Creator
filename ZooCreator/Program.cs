@@ -244,18 +244,29 @@ namespace ZooCreator
         static List<Animals> GenerateZooAnimals()
         {
             Animals aardvarks = new Animals("Aardvark", 500.00m, 0, 45.00m, 12);
-            Animals antelope = new Animals("Antelope", 600.00m, 0, 40.00m, 21);
-            Animals cheetahs = new Animals("Cheetah", 3000.00m, 0, 100.00m, 74);
-            Animals chinchillas = new Animals("Chinchilla", 250.00m, 0, 7.00m, 8);
-            Animals dolphins = new Animals("Dolphin", 4000.00m, 0, 125.00m, 69);
+            Animals antelope = new Animals("Antelope", 600.00m, 0, 40.00m, 38);
+            Animals cheetahs = new Animals("Cheetah", 3000.00m, 0, 100.00m, 90);
+            Animals chinchillas = new Animals("Chinchilla", 250.00m, 0, 7.00m, 14);
+            Animals dolphins = new Animals("Dolphin", 6000.00m, 0, 400.00m, 95);
+            Animals giantTortoises = new Animals("Giant Tortoise", 400.00m, 0, 7.00m, 37);
+            Animals giraffes = new Animals("Giraffe", 4500.00m, 0, 375.00m, 82);
+            Animals hippos = new Animals("Hippopotamus", 12000.00m, 0, 350.00m, 75);
             Animals iguanas = new Animals("Iguana", 150.00m, 0, 3.00m, 8);
             Animals kiaBirds = new Animals("Kia Bird", 200.00m, 0, 14.00m, 13);
-            Animals lions = new Animals("Lion", 9500.00m, 0, 250.00m, 80);
-            Animals penguins = new Animals("Penguin", 500.00m, 0, 25.00m, 41);
+            Animals lemurs = new Animals("Lemur", 1000.00m, 0, 45.00m, 40);
+            Animals lions = new Animals("Lion", 9500.00m, 0, 250.00m, 87);
+            Animals macaws = new Animals("Macaw", 275.00m, 0, 8.00m, 13);
+            Animals penguins = new Animals("Penguin", 500.00m, 0, 25.00m, 49);
             Animals polarBears = new Animals("Polar Bear", 10000.00m, 0, 300.00m, 85);
+            Animals rattlesnakes = new Animals("Rattle Snake", 400.00m, 0, 10.00m, 11);
+            Animals rhinos = new Animals("Rhinoceros", 12500.00m, 0, 200.00m, 80);
+            Animals seaLions = new Animals("Sea Lion", 2000.00m, 0, 350.00m, 70);
+            Animals sugarGliders = new Animals("Sugar Glider", 500.00m, 0, 10.00m, 22);
+            Animals wolves = new Animals("Wolf", 3500.00m, 0, 240.00m, 72);
 
-            List<Animals> allAnimals = new List<Animals>() { aardvarks, antelope, cheetahs, chinchillas, dolphins, iguanas,
-                                                             kiaBirds, lions, penguins, polarBears };
+            List<Animals> allAnimals = new List<Animals>() { aardvarks, antelope, cheetahs, chinchillas, dolphins, giantTortoises,
+                                                             giraffes, hippos, iguanas, kiaBirds, lemurs, lions, macaws, penguins,
+                                                             polarBears, rattlesnakes, rhinos, seaLions, sugarGliders, wolves};
 
             return allAnimals;
         }
@@ -304,56 +315,11 @@ namespace ZooCreator
 
         static void DisplayDashboard(int dayNumber, decimal cashOnHand)
         {
-            string readableCashValue = ConvertToReadableCashValue(cashOnHand);
-            
             Console.WriteLine("-------------------------");
             Console.WriteLine($"Day Number: {dayNumber}");
-            Console.WriteLine($"Cash: ${readableCashValue}");
+            Console.WriteLine($"Cash: {cashOnHand:C2}");
             Console.WriteLine("-------------------------");
             Console.WriteLine();
-        }
-
-        static string ConvertToReadableCashValue(decimal cashValue)
-        {
-            string cashValueString = cashValue.ToString();
-            int wholeDollarNumberOfDigits = cashValueString.Length - 3;
-            string readableCashValue = "";
-            int numberOfCommasNeeded = 0;
-
-            if (cashValueString[cashValueString.Length - 3].ToString() != ".")
-            {
-                cashValueString += ".00";
-            }
-
-            if (wholeDollarNumberOfDigits > 3)
-            {
-                numberOfCommasNeeded = wholeDollarNumberOfDigits / 3;
-                int firstCommaNeededAfterThisManyDigits = wholeDollarNumberOfDigits % 3;
-
-                for (int i = 0; i < wholeDollarNumberOfDigits; i++)
-                {
-                    if (i < firstCommaNeededAfterThisManyDigits)
-                    {
-                        readableCashValue += cashValueString[i].ToString();
-                    }
-                    else if ( (i - firstCommaNeededAfterThisManyDigits) % 3 == 0)
-                    {
-                        readableCashValue += "," + cashValueString[i].ToString();
-                    }
-                    else
-                    {
-                        readableCashValue += cashValueString[i].ToString();
-                    }
-                }
-
-                readableCashValue += cashValueString.Substring(cashValueString.Length - 3);
-            }
-            else
-            {
-                readableCashValue = cashValueString;
-            }
-            
-            return readableCashValue;
         }
 
         static void DisplayZooMap(PhysicalSpaces[] allPhysicalSpaces, int dayNumber, decimal cashOnHand)
@@ -604,21 +570,81 @@ namespace ZooCreator
 
             spaceIllustration[1] = row2;
 
-            if (left & right)
+            if (physicalSpace.AnimalQuantity == 0)
             {
-                row3 = "|       |";
+                if (left & right)
+                {
+                    row3 = "|       |";
+                }
+                else if (left)
+                {
+                    row3 = "|        ";
+                }
+                else if (right)
+                {
+                    row3 = "        |";
+                }
+                else
+                {
+                    row3 = "         ";
+                }
             }
-            else if (left)
+            else if (physicalSpace.AnimalQuantity > 0 && physicalSpace.AnimalQuantity < 10)
             {
-                row3 = "|        ";
+                if (left & right)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity})   |";
+                }
+                else if (left)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity})    ";
+                }
+                else if (right)
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity})   |";
+                }
+                else
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity})    ";
+                }
             }
-            else if (right)
+            else if (physicalSpace.AnimalQuantity >= 10 && physicalSpace.AnimalQuantity < 100)
             {
-                row3 = "        |";
+                if (left & right)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity})  |";
+                }
+                else if (left)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity})   ";
+                }
+                else if (right)
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity})  |";
+                }
+                else
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity})   ";
+                }
             }
-            else
+            else if (physicalSpace.AnimalQuantity >= 100 && physicalSpace.AnimalQuantity < 1000)
             {
-                row3 = "         ";
+                if (left & right)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity}) |";
+                }
+                else if (left)
+                {
+                    row3 = $"| ({physicalSpace.AnimalQuantity})  ";
+                }
+                else if (right)
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity}) |";
+                }
+                else
+                {
+                    row3 = $"  ({physicalSpace.AnimalQuantity})  ";
+                }
             }
 
             spaceIllustration[2] = row3;
@@ -672,7 +698,7 @@ namespace ZooCreator
                 remainingCashOnHand = cashOnHand;
 
                 DisplayDashboard(dayNumber, cashOnHand);
-                Console.WriteLine("------------------------- BUY NEW ANIMALS -------------------------");
+                Console.WriteLine("-------------------- BUY NEW ANIMALS --------------------");
                 Console.WriteLine();
                 foreach (Animals animal in allAnimals)
                 {
@@ -683,23 +709,23 @@ namespace ZooCreator
 
                     if (animal.Price >= 10000)
                     {
-                        dollarAmtSpacer = " ";
+                        dollarAmtSpacer = "  ";
                     }                
                     else if (animal.Price >= 1000 && animal.Price < 10000)
                     {
-                        dollarAmtSpacer = "  ";
+                        dollarAmtSpacer = "   ";
                     }
                     else if (animal.Price >= 100 && animal.Price < 1000)
                     {
-                        dollarAmtSpacer = "    ";
+                        dollarAmtSpacer = "     ";
                     }
                     else if (animal.Price >= 10 && animal.Price < 100)
                     {
-                        dollarAmtSpacer = "     ";
+                        dollarAmtSpacer = "      ";
                     }
                     else if (animal.Price >= 0 && animal.Price < 10)
                     {
-                        dollarAmtSpacer = "      ";
+                        dollarAmtSpacer = "       ";
                     }
 
                     nameSpacerLength = standardNameLength - animal.Name.Length;
@@ -712,13 +738,13 @@ namespace ZooCreator
 
                     if (lineCounter < 10)
                     {
-                        Console.WriteLine(lineCounter + ".  " + animal.Name + nameSpacer + dollarAmtSpacer + "$" +
-                                          ConvertToReadableCashValue(animal.Price) + "\t\tCurrently Own: " + animal.Quantity);
+                        Console.WriteLine($"{lineCounter}.  {animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
+                                          $"\t\tCurrently Own: {animal.Quantity}");
                     }
                     else
                     {
-                        Console.WriteLine(lineCounter + ". " + animal.Name + nameSpacer + dollarAmtSpacer + "$" +
-                                          ConvertToReadableCashValue(animal.Price) + "\t\tCurrently Own: " + animal.Quantity);
+                        Console.WriteLine($"{lineCounter}. {animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
+                                          $"\t\tCurrently Own: {animal.Quantity}");
                     }
                    
                     lineCounter++;
@@ -773,21 +799,77 @@ namespace ZooCreator
                     cashOnHand = remainingCashOnHand;
                     allAnimals[optionNumberInt - 1].Buy(quantityInt);
 
-                    if (quantityInt != 1)
+                    if (quantityInt != 1 && (allAnimals[optionNumberInt - 1].Quantity - quantityInt) == 0)
                     {
-                        Console.WriteLine($"Success! You just purchased {quantityString} " + allAnimals[optionNumberInt - 1].Name.Pluralize() + "!");
+                        Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name.Pluralize()}!");
                         Console.WriteLine();
                         DisplayZooMapLite(allPhysicalSpaces);
-                        Console.WriteLine("Now, where would you like to put the " + allAnimals[optionNumberInt - 1].Name.Pluralize() +
-                            "?\r\nEnter a space (A-P) from the Zoo Map.");
+                        Console.WriteLine($"Now, where would you like to put the {allAnimals[optionNumberInt - 1].Name.Pluralize()}" +
+                                           "?\r\nEnter a space (A-P) from the Zoo Map.");
+                    }
+                    else if (allAnimals[optionNumberInt - 1].Quantity - quantityInt == 0)
+                    {
+                        Console.WriteLine($"Success! You just purchased a {allAnimals[optionNumberInt - 1].Name}!");
+                        Console.WriteLine();
+                        DisplayZooMapLite(allPhysicalSpaces);
+                        Console.WriteLine($"Now, where would you like to put the {allAnimals[optionNumberInt - 1].Name}" +
+                                           "?\r\nEnter a space (A-P) from the Zoo Map.");
+                    }
+                    else if (quantityInt !=1)
+                    {
+                        Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name.Pluralize()}!");
+                        Console.WriteLine();
+                        Console.WriteLine($"Each type of animal can only live in one exhibit. Because you already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
+                                          $"\r\nyour new {allAnimals[optionNumberInt - 1].Name.Pluralize()} were added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
+                        
+                        int indexOfPhysicalSpace = 0;
+                        for (int i = 0; i < allPhysicalSpaces.Length; i++)
+                        {
+                            if (allPhysicalSpaces[i].SpaceID == allAnimals[optionNumberInt - 1].Location)
+                            {
+                                indexOfPhysicalSpace = i;
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        
+                        allPhysicalSpaces[indexOfPhysicalSpace].AnimalQuantity += quantityInt;
+                        Console.WriteLine();
+                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.ReadLine();
+                        animalsNotPlaced = false;
+                        continue;
                     }
                     else
                     {
-                        Console.WriteLine($"Success! You just purchased a " + allAnimals[optionNumberInt - 1].Name + "!");
+                        Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name}!");
                         Console.WriteLine();
-                        DisplayZooMapLite(allPhysicalSpaces);
-                        Console.WriteLine("Now, where would you like to put the " + allAnimals[optionNumberInt - 1].Name +
-                            "?\r\nEnter a space (A-P) from the Zoo Map.");
+                        Console.WriteLine($"Each type of animal can only live in one exhibit. Because you already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
+                                          $"\r\nyour new {allAnimals[optionNumberInt - 1].Name} was added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
+                        
+                        int indexOfPhysicalSpace = 0;
+                        for (int i = 0; i < allPhysicalSpaces.Length; i++)
+                        {
+                            if (allPhysicalSpaces[i].SpaceID == allAnimals[optionNumberInt - 1].Location)
+                            {
+                                indexOfPhysicalSpace = i;
+                                break;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+
+                        allPhysicalSpaces[indexOfPhysicalSpace].AnimalQuantity += quantityInt;
+                        Console.WriteLine();
+                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.ReadLine();
+                        animalsNotPlaced = false;
+                        continue;
                     }
 
                     Console.WriteLine();
@@ -799,7 +881,7 @@ namespace ZooCreator
 
                     do
                     {                        
-                        if (allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].OccupyingAnimals == "")
+                        if (allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].OccupyingAnimals == "" && allAnimals[optionNumberInt - 1].Quantity == quantityInt)
                         {
                             allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].OccupyingAnimals = allAnimals[optionNumberInt - 1].Name;
                             allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].AnimalQuantity = quantityInt;
@@ -807,13 +889,34 @@ namespace ZooCreator
 
                             if (quantityInt != 1)
                             {
-                                Console.WriteLine("Success! You just placed your new " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " in exhibit " +
-                                                    spaceOption + ".");
+                                Console.WriteLine($"Success! You just placed your new {allAnimals[optionNumberInt - 1].Name.Pluralize()} in exhibit { spaceOption}.");
+
+
                             }
                             else
                             {
-                                Console.WriteLine("Success! You just placed your new " + allAnimals[optionNumberInt - 1].Name + " in exhibit " +
-                                                    spaceOption + ".");
+                                Console.WriteLine($"Success! You just placed your new {allAnimals[optionNumberInt - 1].Name} in exhibit { spaceOption}.");
+                            }
+
+                            Console.WriteLine();
+                            Console.WriteLine("Press \"Enter\" to continue");
+                            Console.ReadLine();
+                            animalsNotPlaced = false;
+                        }
+                        else if (allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].OccupyingAnimals != "" && allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].OccupyingAnimals == allAnimals[optionNumberInt - 1].Name)
+                        {
+                            allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].AnimalQuantity += quantityInt;
+                            allAnimals[optionNumberInt - 1].Location = allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].SpaceID;
+
+                            if (quantityInt != 1)
+                            {
+                                Console.WriteLine($"Success! You just added your new {allAnimals[optionNumberInt - 1].Name.Pluralize()} to exhibit { spaceOption}.");
+
+
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Success! You just added your new {allAnimals[optionNumberInt - 1].Name} to exhibit { spaceOption}.");
                             }
 
                             Console.WriteLine();
@@ -823,7 +926,7 @@ namespace ZooCreator
                         }
                         else
                         {
-                            Console.WriteLine("Hmm, that exhibit is already taken. Select a different space for these animals.");
+                            Console.WriteLine("Hmm, that exhibit is already taken by a different type of animal. Select a different space for these animals.");
                             spaceOption = Console.ReadLine().ToUpper();
                             Console.WriteLine();
 
@@ -1037,7 +1140,7 @@ namespace ZooCreator
                     while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive number for the item's price:");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1109,7 +1212,7 @@ namespace ZooCreator
                     while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive number for the item's price:");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1179,7 +1282,7 @@ namespace ZooCreator
                     while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive number for the item's price:");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1250,7 +1353,7 @@ namespace ZooCreator
                     while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive number for the item's price:");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1300,11 +1403,11 @@ namespace ZooCreator
                     
                     if (lineNumber < 10)
                     {
-                        Console.WriteLine(lineNumber + ".  " + item.Name + lineSpacer + "\tPrice: $" + item.Price);
+                        Console.WriteLine($"{lineNumber}.  {item.Name}{lineSpacer}\tPrice: {item.Price:C2}");
                     }
                     else
                     {
-                        Console.WriteLine(lineNumber + ". " + item.Name + lineSpacer + "\tPrice: $" + item.Price);
+                        Console.WriteLine($"{lineNumber}. {item.Name}{lineSpacer}\tPrice: {item.Price:C2}");
                     }
                     lineNumber++;
                 }
@@ -1395,13 +1498,13 @@ namespace ZooCreator
 
                         if (lineCounter < 10)
                         {
-                            Console.WriteLine(lineCounter + ".  " + animal.Name + nameSpacer + "Sell Price:" + dollarAmtSpacer + "$" +
-                                              ConvertToReadableCashValue(Math.Floor(animal.Price * .6m)) + "\tCurrently Own: " + animal.Quantity);
+                            Console.WriteLine($"{lineCounter}.  {animal.Name}{nameSpacer}Sell Price:{dollarAmtSpacer}" +
+                                              $"{Math.Floor(animal.Price * .6m):C0}\tCurrently Own: {animal.Quantity}");
                         }
                         else
                         {
-                            Console.WriteLine(lineCounter + ". " + animal.Name + nameSpacer + dollarAmtSpacer + "Sell Price: $" +
-                                              ConvertToReadableCashValue(Math.Floor(animal.Price * .6m)) + "\tCurrently Own: " + animal.Quantity);
+                            Console.WriteLine($"{lineCounter}. {animal.Name}{nameSpacer}Sell Price:{dollarAmtSpacer}" +
+                                              $"{Math.Floor(animal.Price * .6m):C0}\tCurrently Own: {animal.Quantity}");
                         }
 
                         lineCounter++;
@@ -1435,13 +1538,13 @@ namespace ZooCreator
                 Console.WriteLine();
                 if (sellQuantityInt != 1)
                 {
-                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} " + sellableAnimals[optionNumberInt - 1].Name.Pluralize() +
-                                      $" for a total of $" + ConvertToReadableCashValue(totalSale) + "?\r\nEnter \"Y\" or \"N\":");
+                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} {sellableAnimals[optionNumberInt - 1].Name.Pluralize()}" +
+                                      $" for a total of {totalSale:C2}?\r\nEnter \"Y\" or \"N\":");
                 }
                 else
                 {
-                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} " + sellableAnimals[optionNumberInt - 1].Name +
-                                      $" for a total of $" + ConvertToReadableCashValue(totalSale) + "?\r\nEnter \"Y\" or \"N\":");
+                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} {sellableAnimals[optionNumberInt - 1].Name}" +
+                                      $" for a total of {totalSale:C2}?\r\nEnter \"Y\" or \"N\":");
                 }
 
                 confirmChoice = GetUserInput(new List<string>() { "Y", "N" });

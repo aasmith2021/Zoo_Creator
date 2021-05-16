@@ -15,6 +15,7 @@ namespace ZooCreator
             this.Quantity = quantity;
             this.DailyCost = dailyCost;
             this.AttractionValue = attractionValue;
+            this.Location = "";
         }
 
         private string name;
