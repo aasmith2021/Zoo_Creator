@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ZooCreator
 {
-    class PhysicalSpaces
+    class PhysicalSpace
     {
-        public PhysicalSpaces (string spaceID, int horizontalCoordinate, int verticalCoordinate, string occupyingAnimals = "", int animalQuantity = 0)
+        public PhysicalSpace (string spaceID, int horizontalCoordinate, int verticalCoordinate, string occupyingAnimals = "", int animalQuantity = 0)
         {
             this.SpaceID = spaceID;
             this.HorizontalCoordinate = horizontalCoordinate;

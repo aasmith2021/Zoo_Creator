@@ -8,75 +8,98 @@ namespace ZooCreator
     {
         static void Main(string[] args)
         {
-            bool exitNow = WelcomeMessage();
-            if (exitNow)
+            bool continueProgram = WelcomeMessage();
+            if (!continueProgram)
             {
+                ExitProgram(false);
                 return;
             }
-            
-            List<Animals> allAnimals = GenerateZooAnimals();
-            PhysicalSpaces[] allPhysicalSpaces = GeneratePhysicalSpaces();
-            List<Sundry> allConcessionsItems = new List<Sundry>();
-            List<Sundry> allGiftShopItems = new List<Sundry>();
-            
-            bool firstTimeRun = true;
-            bool continueProgram = true;
-            List<string> usedLocations = new List<string>();
-            int dayNumber = 1;
-            decimal cashOnHand = 25000.00m;
-            List<string> mainMenuOptions = new List<string>() { "1", "2", "3", "4", "5", "6", "A", "E" };
+
+            CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
+                                 out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
+                                 out List<string> mainMenuOptions, out decimal[] ticketPrice);
 
             do
             {
-                if (!firstTimeRun)
-                {
-                    Console.Clear();
-                }
-
-                DisplayDashboard(dayNumber, cashOnHand);
-                DisplayMainMenu(mainMenuOptions);
-                string userOption = GetUserInput(mainMenuOptions);
-                firstTimeRun = false;
-
-                if (userOption == "1")
-                {
-                    DisplayZooMap(allPhysicalSpaces, dayNumber, cashOnHand);
-                }
-                else if (userOption == "2")
-                {
-                    BuyNewAnimals(allPhysicalSpaces, allAnimals, cashOnHand, dayNumber, out decimal remainingCashOnHand);
-                    cashOnHand = remainingCashOnHand;
-                }
-                else if (userOption == "3")
-                {
-                    ArrangeAnimals(allPhysicalSpaces, allAnimals, dayNumber, cashOnHand);
-                }
-                else if (userOption == "4")
-                {
-                    EditConcessionsItems(allConcessionsItems, dayNumber, cashOnHand);
-                }
-                else if (userOption == "5")
-                {
-                    EditGiftShopItems(allGiftShopItems, dayNumber, cashOnHand);
-                }
-                else if (userOption == "6")
-                {
-                    SellZooAnimals(allPhysicalSpaces, allAnimals, cashOnHand, dayNumber, out decimal remainingCashOnHand);
-                    cashOnHand = remainingCashOnHand;
-                }
-                else if (userOption == "A")
-                {
-                    AdvanceDay(allPhysicalSpaces, allAnimals, allConcessionsItems, allGiftShopItems, cashOnHand, dayNumber, out decimal remainingCashOnHand, out dayNumber);
-                    cashOnHand = remainingCashOnHand;
-                }
-                else if (userOption == "E")
-                {
-                    continueProgram = false;
-                }
+                RunGame(dayNumber, cashOnHand, totalAttractionScore, allAnimals, allPhysicalSpaces, allConcessionsItems, allGiftShopItems,
+                        mainMenuOptions, ticketPrice, out continueProgram);
             }
             while (continueProgram);
 
-            ExitProgram();
+            ExitProgram(true);
+        }
+
+        static void CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
+                                         out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
+                                         out List<string> mainMenuOptions, out decimal[] ticketPrice)
+        {
+            dayNumber = new int[] { 1 };
+            cashOnHand = new decimal[] { 25000.00m };
+            totalAttractionScore = new int[] { 0 };
+            allAnimals = GenerateZooAnimals();
+            allPhysicalSpaces = GeneratePhysicalSpaces();
+            allConcessionsItems = new List<Sundry>();
+            allGiftShopItems = new List<Sundry>();
+            mainMenuOptions = new List<string>() { "1", "2", "3", "4", "5", "6", "7", "A", "I", "E" };
+            ticketPrice = new decimal[] { 5.00m };
+        }
+        
+        static void RunGame(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore, List<Animal> allAnimals, PhysicalSpace[] allPhysicalSpaces,
+                            List<Sundry> allConcessionsItems, List<Sundry> allGiftShopItems, List<string> mainMenuOptions, decimal[] ticketPrice, out bool continueProgram)
+        {
+            continueProgram = true;
+            
+            Console.Clear();
+            DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+            DisplayMainMenu(mainMenuOptions);
+            string userOption = GetUserInput(mainMenuOptions);
+
+            switch (userOption)
+            {
+                case "1":
+                    DisplayZooMap(allPhysicalSpaces, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "2":
+                    BuyNewAnimals(allPhysicalSpaces, allAnimals, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "3":
+                    ArrangeAnimals(allPhysicalSpaces, allAnimals, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "4":
+                    SellZooAnimals(allPhysicalSpaces, allAnimals, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "5":
+                    ChangeTicketPrice(ticketPrice, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "6":
+                    EditConcessionsItems(allConcessionsItems, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "7":
+                    EditGiftShopItems(allGiftShopItems, dayNumber, cashOnHand, totalAttractionScore);
+                    break;
+
+                case "A":
+                    AdvanceDay(allPhysicalSpaces, allAnimals, allConcessionsItems, allGiftShopItems, dayNumber, cashOnHand, totalAttractionScore, ticketPrice);
+                    break;
+
+                case "I":
+                    DisplayInstructions();
+                    break;
+
+                case "E":
+                    continueProgram = false;
+                    break;
+
+                default:
+                    continueProgram = false;
+                    break;
+            }
         }
 
         static bool WelcomeMessage()
@@ -95,31 +118,34 @@ namespace ZooCreator
             if (skip == "S")
             {
                 Console.Clear();
-                return false;
+                return true;
             }
 
             Console.Clear();
-            Console.WriteLine(CovertStatementToConsoleLengthLines("Long ago, your Great Aunt Gertrude purchased a plot of land in the Andes mountains."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Long ago, your Great Aunt Gertrude purchased a plot of land in the " +
+                              "Andes mountains."));
             Console.WriteLine();
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
             Console.Clear();
-            Console.WriteLine(CovertStatementToConsoleLengthLines("She spent her considerable fortune and many years constructing *something*, but no one was sure what it was."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("She spent her considerable fortune and many years constructing *something*, " +
+                              "but no one really knows what."));
             Console.WriteLine();
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
             Console.Clear();
-            Console.WriteLine(CovertStatementToConsoleLengthLines("Recently, you received a telegram explaining that Great Aunt Gertrude died suddenly, and in her last will and testament " +
-                "she has bequeathed the land, all that has been constructed, and the remainder of her fortune ($25,000) to you."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Recently, you received a telegram explaining that Great Aunt Gertrude died " +
+                              "suddenly, and in her last will and testament she has bequeathed the land, all that has been constructed, and the " +
+                              "remainder of her fortune - $25,000, to you."));
             Console.WriteLine();
             Console.WriteLine("Press Enter to continue...");
             Console.ReadLine();
 
             Console.Clear();
-            Console.WriteLine(CovertStatementToConsoleLengthLines("However, the will also gave specific instructions that you are only to recieve the land and money if you chose to complete " +
-                "the mysterious project that she had been working on."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("However, you can only inherit the land and the money if you choose to complete " +
+                              "the mysterious project that she was working on."));
             Console.WriteLine();
             Console.WriteLine("DO YOU WANT TO COMPLETE THE PROJECT? Enter \"Y\" or \"N\":");
             string continueToGame = Console.ReadLine().ToUpper();
@@ -133,22 +159,165 @@ namespace ZooCreator
             if (continueToGame == "N")
             {
                 Console.Clear();
-                Console.WriteLine(CovertStatementToConsoleLengthLines("You don't want to finish the project, and that's ok! Great Aunt Gertrude was a little strange. Who knows what she was " +
-                    "working on, anyway?"));
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("You don't want to finish the project, and that's ok! " +
+                                  "Great Aunt Gertrude was a little strange. Who knows what she was working on, anyway?"));
                 Console.WriteLine();
 
-                Console.WriteLine(CovertStatementToConsoleLengthLines("Whatever it is, you'll probably never find out. Or, maybe you'll have second thoughts and talk to the lawyer again..."));
-                Console.WriteLine();
-                Console.WriteLine("Goodbye!");
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Whatever it is, you'll probably never find out. Or, maybe " +
+                                  "you'll have second thoughts and talk to the lawyer again..."));
 
-                return true;
+                return false;
             }
 
             Console.Clear();
-            return false;
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Congratulations! You've inherited a ZOO from Great Aunt Gertrude and have " +
+                             "$25,000 to run it!!!"));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("But, unfortunately, the lawyer who is handling Great Aunt Gertrude's estate just " +
+                             "delivered some bad news..."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Apparently, the land the zoo was built on was never actually purchased outright, and " +
+                             "the bank is demanding that a payment of $100,000 be made in full within the next 25 days."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("If you are able to collect $100,000 by the morning of Day 25, you can pay the " +
+                             "bank what is owed and save the zoo! Otherwise, you'll be forced to give the zoo and the land back to the bank, " +
+                             "and Great Aunt Gertrude's legacy will be tarnished forever."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Well, what are you waiting for?! You have a zoo to run!"));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            DisplayInstructions();
+            return true;
         }
 
-        static string CovertStatementToConsoleLengthLines(string originalStatement)
+        static void DisplayInstructions()
+        {
+            Console.Clear();
+            string instructionsHeader = "--------------------------- INSTRUCTIONS ---------------------------";
+
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< WELCOME! >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("The goal of this game is to manage your newly inherited zoo so that, " +
+                             "with some luck and hard work, it becomes profitable over time."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("To win the game, you must have at least $100,000 on the morning of Day 25. " +
+                             "By doing so, you'll be able to pay off the bank, keep the zoo, and honor all that your your Great Aunt " +
+                             "Gertrude sought to build with her considerable fortune. "));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("From the main menu, you will see the various options you have for " +
+                             "managing your zoo."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< EARNING INCOME >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Your zoo earns money by charging for admission tickets and selling " +
+                             "items in the gift shop and concessions stands."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("At the start of the game, the price of each ticket is set " +
+                             "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $100.00."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You may be tempted to raise the ticket price to earn more money, but " +
+                             "be careful! Your zoo's popularity is measured by it's overall \"attraction score\", which is determined " +
+                             "by the kind and number of animals in your zoo."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("If your zoo has a low attraction score but the ticket price is high, " +
+                             "fewer people will come to your zoo that day."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< ZOO ANIMALS >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Each zoo animal you buy has an \"attraction score\" that increases the " +
+                             "popularity of your zoo. The more popular your zoo is, the more people attend each day! And, the higher your " +
+                             "attendance, the more money you can make."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Animals that are smaller or more common have a lower \"attraction score\" " +
+                             "than animals that are larger or more rare."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Each animal also has a \"daily cost\" to feed and " +
+                             "upkeep their habitat. So, the larger the animal, the higher the daily cost will be to care for it."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< GIFT SHOP AND CONCESSIONS STANDS >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You can add new items to the gift shop and concessions stands in the park. " +
+                             "Each time you add an item, you'll also set the item's price. The maximum price you can charge for an " +
+                             "item is $100.00."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You can add as many items as you would like to the gift shop and concessions " +
+                             "stands. However, the more items your gift shop or concessions stands offers for sale, the higher the daily cost " +
+                             "will be to operate the gift shop and concessions stands."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Every day, a certain percentage of the people who attended your park will " +
+                             "buy items at the gift shop and concessions stands. But, the higher the price of an item, the less likely it is " +
+                             "that someone will buy it."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< ADVANCING THE DAY >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Each day, before the zoo opens, you are able to make changes. You can:"));
+            Console.WriteLine();
+            Console.WriteLine("- Change the ticket price");
+            Console.WriteLine("- Buy, sell, or rearrange zoo animals");
+            Console.WriteLine("- Create, delete, or change the price of gift shop and concessions items");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Once you are satisfied with the changes you have made, use the"));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("\"A - Advance Day\" option to advance the day."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("After advancing the day, you will see the how money the zoo made or " +
+                              "lost during that day, as well as an updated history of the zoo's daily attendance."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine(instructionsHeader);
+            Console.WriteLine();
+            Console.WriteLine("<<< WINNING THE GAME >>>");
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("To win the game, you must have at least $100,000 after you advance to Day 25."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("If you don't have all of the money on Day 25, you'll lose the game."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Then, sadly, the zoo, the land, and all of the animals will be claimed by the bank, " +
+                              "and your Great Aunt Gertrude's legacy will be tarnished forever..."));
+            Console.WriteLine();
+            Console.WriteLine("Let's hope that doesn't happen! You'd better get to work to save the zoo!");
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to go to the main menu...");
+            Console.ReadLine();
+        }
+
+        static string ConvertStatementToConsoleLengthLines(string originalStatement)
         {
             string convertedStatement = "";
             string tempStatement = "";
@@ -219,10 +388,12 @@ namespace ZooCreator
               "View Zoo Map",
               "Buy New Zoo Animals",
               "Arrange Zoo Animals",
+              "Sell Zoo Animals",
+              "Change Ticket Price",
               "Create/Edit Concessions",
               "Create/Edit Gift Shop Items",
-              "Sell Zoo Animals",
               "Advance Day",
+              "Instructions",
               "Exit"
             };
 
@@ -241,60 +412,60 @@ namespace ZooCreator
             Console.WriteLine();
         }
 
-        static List<Animals> GenerateZooAnimals()
+        static List<Animal> GenerateZooAnimals()
         {
-            Animals aardvarks = new Animals("Aardvark", 500.00m, 0, 45.00m, 12);
-            Animals antelope = new Animals("Antelope", 600.00m, 0, 40.00m, 38);
-            Animals cheetahs = new Animals("Cheetah", 3000.00m, 0, 100.00m, 90);
-            Animals chinchillas = new Animals("Chinchilla", 250.00m, 0, 7.00m, 14);
-            Animals dolphins = new Animals("Dolphin", 6000.00m, 0, 400.00m, 95);
-            Animals giantTortoises = new Animals("Giant Tortoise", 400.00m, 0, 7.00m, 37);
-            Animals giraffes = new Animals("Giraffe", 4500.00m, 0, 375.00m, 82);
-            Animals hippos = new Animals("Hippopotamus", 12000.00m, 0, 350.00m, 75);
-            Animals iguanas = new Animals("Iguana", 150.00m, 0, 3.00m, 8);
-            Animals kiaBirds = new Animals("Kia Bird", 200.00m, 0, 14.00m, 13);
-            Animals lemurs = new Animals("Lemur", 1000.00m, 0, 45.00m, 40);
-            Animals lions = new Animals("Lion", 9500.00m, 0, 250.00m, 87);
-            Animals macaws = new Animals("Macaw", 275.00m, 0, 8.00m, 13);
-            Animals penguins = new Animals("Penguin", 500.00m, 0, 25.00m, 49);
-            Animals polarBears = new Animals("Polar Bear", 10000.00m, 0, 300.00m, 85);
-            Animals rattlesnakes = new Animals("Rattle Snake", 400.00m, 0, 10.00m, 11);
-            Animals rhinos = new Animals("Rhinoceros", 12500.00m, 0, 200.00m, 80);
-            Animals seaLions = new Animals("Sea Lion", 2000.00m, 0, 350.00m, 70);
-            Animals sugarGliders = new Animals("Sugar Glider", 500.00m, 0, 10.00m, 22);
-            Animals wolves = new Animals("Wolf", 3500.00m, 0, 240.00m, 72);
+            Animal aardvarks = new Animal("Aardvark", 300.00m, 0, 45.00m, 19);
+            Animal bearcats = new Animal("Bearcat", 600.00m, 0, 40.00m, 43);
+            Animal cheetahs = new Animal("Cheetah", 3000.00m, 0, 275.00m, 62);
+            Animal chinchillas = new Animal("Chinchilla", 250.00m, 0, 7.00m, 14);
+            Animal dolphins = new Animal("Dolphin", 5500.00m, 0, 400.00m, 95);
+            Animal giantTortoises = new Animal("Giant Tortoise", 400.00m, 0, 7.00m, 28);
+            Animal giraffes = new Animal("Giraffe", 4500.00m, 0, 300.00m, 69);
+            Animal hippos = new Animal("Hippopotamus", 12000.00m, 0, 600.00m, 97);
+            Animal iguanas = new Animal("Iguana", 150.00m, 0, 3.00m, 8);
+            Animal kiaBirds = new Animal("Kia Bird", 200.00m, 0, 14.00m, 13);
+            Animal lemurs = new Animal("Lemur", 600.00m, 0, 45.00m, 40);
+            Animal lions = new Animal("Lion", 9500.00m, 0, 250.00m, 87);
+            Animal macaws = new Animal("Macaw", 275.00m, 0, 8.00m, 13);
+            Animal penguins = new Animal("Penguin", 500.00m, 0, 25.00m, 38);
+            Animal polarBears = new Animal("Polar Bear", 12500.00m, 0, 625.00m, 100);
+            Animal rattlesnakes = new Animal("Rattle Snake", 100.00m, 0, 10.00m, 11);
+            Animal rhinos = new Animal("Rhinoceros", 10500.00m, 0, 300.00m, 93);
+            Animal seaLions = new Animal("Sea Lion", 2500.00m, 0, 450.00m, 58);
+            Animal sugarGliders = new Animal("Sugar Glider", 100.00m, 0, 10.00m, 9);
+            Animal wolves = new Animal("Wolf", 3500.00m, 0, 240.00m, 68);
 
-            List<Animals> allAnimals = new List<Animals>() { aardvarks, antelope, cheetahs, chinchillas, dolphins, giantTortoises,
+            List<Animal> allAnimals = new List<Animal>() { aardvarks, bearcats, cheetahs, chinchillas, dolphins, giantTortoises,
                                                              giraffes, hippos, iguanas, kiaBirds, lemurs, lions, macaws, penguins,
                                                              polarBears, rattlesnakes, rhinos, seaLions, sugarGliders, wolves};
 
             return allAnimals;
         }
         
-        static PhysicalSpaces[] GeneratePhysicalSpaces()
+        static PhysicalSpace[] GeneratePhysicalSpaces()
         {
-            PhysicalSpaces A = new PhysicalSpaces("A", 1, 5);
-            PhysicalSpaces B = new PhysicalSpaces("B", 1, 4);
-            PhysicalSpaces C = new PhysicalSpaces("C", 1, 3);
-            PhysicalSpaces D = new PhysicalSpaces("D", 1, 2);
-            PhysicalSpaces FoodCourt1 = new PhysicalSpaces("Food Court 1", 1, 1, "Food1");
-            PhysicalSpaces E = new PhysicalSpaces("E", 2, 1);
-            PhysicalSpaces F = new PhysicalSpaces("F", 3, 1);
-            PhysicalSpaces G = new PhysicalSpaces("G", 4, 1);
-            PhysicalSpaces H = new PhysicalSpaces("H", 5, 1);
-            PhysicalSpaces FoodCourt2 = new PhysicalSpaces("Food Court 2", 1, 6, "Food2");
-            PhysicalSpaces I = new PhysicalSpaces("I", 6, 2);
-            PhysicalSpaces J = new PhysicalSpaces("J", 6, 3);
-            PhysicalSpaces K = new PhysicalSpaces("K", 6, 4);
-            PhysicalSpaces L = new PhysicalSpaces("L", 3, 5);
-            PhysicalSpaces M = new PhysicalSpaces("M", 3, 4);
-            PhysicalSpaces N = new PhysicalSpaces("N", 3, 3);
-            PhysicalSpaces O = new PhysicalSpaces("O", 4, 3);
-            PhysicalSpaces P = new PhysicalSpaces("P", 4, 4);
-            PhysicalSpaces GiftShop = new PhysicalSpaces("GiftShop", 10, 10, "Gifts");
-            PhysicalSpaces Blank = new PhysicalSpaces("Blank", 10, 10);
+            PhysicalSpace A = new PhysicalSpace("A", 1, 5);
+            PhysicalSpace B = new PhysicalSpace("B", 1, 4);
+            PhysicalSpace C = new PhysicalSpace("C", 1, 3);
+            PhysicalSpace D = new PhysicalSpace("D", 1, 2);
+            PhysicalSpace FoodCourt1 = new PhysicalSpace("Food Court 1", 1, 1, "Food1");
+            PhysicalSpace E = new PhysicalSpace("E", 2, 1);
+            PhysicalSpace F = new PhysicalSpace("F", 3, 1);
+            PhysicalSpace G = new PhysicalSpace("G", 4, 1);
+            PhysicalSpace H = new PhysicalSpace("H", 5, 1);
+            PhysicalSpace FoodCourt2 = new PhysicalSpace("Food Court 2", 1, 6, "Food2");
+            PhysicalSpace I = new PhysicalSpace("I", 6, 2);
+            PhysicalSpace J = new PhysicalSpace("J", 6, 3);
+            PhysicalSpace K = new PhysicalSpace("K", 6, 4);
+            PhysicalSpace L = new PhysicalSpace("L", 3, 5);
+            PhysicalSpace M = new PhysicalSpace("M", 3, 4);
+            PhysicalSpace N = new PhysicalSpace("N", 3, 3);
+            PhysicalSpace O = new PhysicalSpace("O", 4, 3);
+            PhysicalSpace P = new PhysicalSpace("P", 4, 4);
+            PhysicalSpace GiftShop = new PhysicalSpace("GiftShop", 10, 10, "Gifts");
+            PhysicalSpace Blank = new PhysicalSpace("Blank", 10, 10);
 
-            PhysicalSpaces[] allPhysicalSpaces = new PhysicalSpaces[] { A, B, C, D, FoodCourt1, E, F, G, H, FoodCourt2,
+            PhysicalSpace[] allPhysicalSpaces = new PhysicalSpace[] { A, B, C, D, FoodCourt1, E, F, G, H, FoodCourt2,
                                                                         I, J, K, L, M, N, O, P, GiftShop, Blank };
 
             return allPhysicalSpaces;
@@ -313,34 +484,38 @@ namespace ZooCreator
             return userInput;
         }
 
-        static void DisplayDashboard(int dayNumber, decimal cashOnHand)
+        static void DisplayDashboard(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
-            Console.WriteLine("-------------------------");
-            Console.WriteLine($"Day Number: {dayNumber}");
-            Console.WriteLine($"Cash: {cashOnHand:C2}");
-            Console.WriteLine("-------------------------");
+            Console.WriteLine("-----------------------------");
+            Console.WriteLine($"Day Number: {dayNumber[0]}");
+            Console.WriteLine($"Cash: {cashOnHand[0]:C2}");
+            Console.WriteLine($"Zoo Attraction Score: {totalAttractionScore[0]:N0}");
+            Console.WriteLine("-----------------------------");
             Console.WriteLine();
         }
 
-        static void DisplayZooMap(PhysicalSpaces[] allPhysicalSpaces, int dayNumber, decimal cashOnHand)
+        static void DisplayZooMap(PhysicalSpace[] allPhysicalSpaces, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
             Console.Clear();
-            DisplayDashboard(dayNumber, cashOnHand);
+            DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
             Console.WriteLine("------------------- CURRENT ZOO MAP -------------------\r\n");
             Console.WriteLine(ZooMapIllustrator(allPhysicalSpaces));
             Console.WriteLine();
-            Console.WriteLine("Press \"Enter\" to return to the main menu.");
+            Console.WriteLine("Press \"Enter\" to return to the main menu...");
             Console.ReadLine();
         }
 
-        static void DisplayZooMapLite(PhysicalSpaces[] allPhysicalSpaces)
+        static void DisplayZooMapLite(PhysicalSpace[] allPhysicalSpaces, bool showMapTitle)
         {
-            Console.WriteLine("------------------- CURRENT ZOO MAP -------------------\r\n");
+            if (showMapTitle)
+            {
+                Console.WriteLine("------------------- CURRENT ZOO MAP -------------------\r\n");
+            }
             Console.WriteLine(ZooMapIllustrator(allPhysicalSpaces));
             Console.WriteLine();
         }
 
-        static string ZooMapIllustrator(PhysicalSpaces[] allPhysicalSpaces)
+        static string ZooMapIllustrator(PhysicalSpace[] allPhysicalSpaces)
         {
             string[] square1_5 = SquareSpaceIllustrator(allPhysicalSpaces[0], top: true, right: true, bottom: true, left: true);
             string[] square1_4 = SquareSpaceIllustrator(allPhysicalSpaces[1], top: true, right: true, bottom: true, left: true);
@@ -399,7 +574,7 @@ namespace ZooCreator
             return wholeMapIllustration;
         }
 
-        static string[] SquareSpaceIllustrator(PhysicalSpaces physicalSpace, bool top = false, bool right = false, bool bottom = false, bool left = false)
+        static string[] SquareSpaceIllustrator(PhysicalSpace physicalSpace, bool top = false, bool right = false, bool bottom = false, bool left = false)
         {
             string[] spaceIllustration = new string[4];
             string row2 = "";
@@ -673,7 +848,58 @@ namespace ZooCreator
             return spaceIllustration;
         }
 
-        static void BuyNewAnimals(PhysicalSpaces[] allPhysicalSpaces, List<Animals> allAnimals, decimal cashOnHand, int dayNumber, out decimal remainingCashOnHand)
+        static void ChangeTicketPrice(decimal[] ticketPrice, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
+        {
+            bool exit = false;
+
+            do
+            {
+                
+
+                Console.Clear();
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+                Console.WriteLine("------------------ CHANGE TICKET PRICE ------------------");
+                Console.WriteLine();
+                Console.WriteLine($"The current ticket price is: {ticketPrice[0]:C2}");
+                Console.WriteLine();
+                Console.WriteLine("Do you want to change the ticket price?");
+                Console.WriteLine();
+                Console.WriteLine("Enter \"Y\" for Yes to change the price, or \"E\" to exit:");
+
+                List<string> menuOptions = new List<string>() { "Y", "E" };
+                string userOption = GetUserInput(menuOptions);
+
+                if (userOption == "E")
+                {
+                    exit = true;
+                    break;
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Enter new ticket price:");
+                string newTicketPriceString = Console.ReadLine();
+
+                decimal newTicketPrice;
+
+                while (!Decimal.TryParse(newTicketPriceString, out newTicketPrice) || newTicketPrice < 0 || newTicketPrice > 100 ||
+                       ((newTicketPrice * 100) - Math.Floor(newTicketPrice * 100)) > 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Invalid price. Please enter a dollar amount that is $100.00 or less (ex: 3.00):");
+                    newTicketPriceString = Console.ReadLine();
+                }
+
+                ticketPrice[0] = newTicketPrice;
+                Console.WriteLine();
+                Console.WriteLine($"Success! The ticket price was updated to {newTicketPrice:C2}");
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+            while (!exit);
+        }
+        
+        static void BuyNewAnimals(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {            
             bool exitMenu = false;
             bool invalidEntry;
@@ -691,61 +917,49 @@ namespace ZooCreator
                 Console.Clear();
                 invalidEntry = true;
                 animalsNotPlaced = true;
+                bool showMapTitle = true;
                 spaceOption = "";
                 lineCounter = 1;
                 totalCost = 0;
                 quantityInt = -1;
-                remainingCashOnHand = cashOnHand;
 
-                DisplayDashboard(dayNumber, cashOnHand);
-                Console.WriteLine("-------------------- BUY NEW ANIMALS --------------------");
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+                Console.WriteLine("-------------------------- BUY NEW ANIMALS --------------------------");
                 Console.WriteLine();
-                foreach (Animals animal in allAnimals)
+                Console.WriteLine("                                  ATTRACTION");
+                Console.WriteLine("                                    SCORE       DAILY    CURRENTLY");
+                Console.WriteLine("#   NAME                PRICE    (out of 100)    COST       OWN");
+                Console.WriteLine();
+
+                foreach (Animal animal in allAnimals)
                 {
-                    string dollarAmtSpacer = "";
+                    //Create the dollarAmtSpacer
+                    decimal price = animal.Price;
+                    string dollarAmtSpacer = (price >= 1000 && price < 10000) ? " " :
+                                                (price >= 100 && price < 1000) ? "   " :
+                                                    (price >= 10 && price < 100) ? "    " :
+                                                        (price >= 0 && price < 10) ? "     " : "";
+
+                    //Create the nameSpacer
                     string nameSpacer = "";
                     int standardNameLength = 18;
-                    int nameSpacerLength = 0;
-
-                    if (animal.Price >= 10000)
-                    {
-                        dollarAmtSpacer = "  ";
-                    }                
-                    else if (animal.Price >= 1000 && animal.Price < 10000)
-                    {
-                        dollarAmtSpacer = "   ";
-                    }
-                    else if (animal.Price >= 100 && animal.Price < 1000)
-                    {
-                        dollarAmtSpacer = "     ";
-                    }
-                    else if (animal.Price >= 10 && animal.Price < 100)
-                    {
-                        dollarAmtSpacer = "      ";
-                    }
-                    else if (animal.Price >= 0 && animal.Price < 10)
-                    {
-                        dollarAmtSpacer = "       ";
-                    }
-
-                    nameSpacerLength = standardNameLength - animal.Name.Length;
+                    int nameSpacerLength = standardNameLength - animal.Name.Length;
 
                     for (int i = 0; i < nameSpacerLength; i++)
                     {
                         nameSpacer += " ";
                     }
 
+                    //Create other spacers
+                    string animalDailyCostSpacer = animal.DailyCost < 10 ? "  " : animal.DailyCost < 100 ? " " : "";
+                    string currentlyOwnSpacer = animal.Quantity < 10 ? "  " : animal.Quantity < 100 ? " " : "";
+                    string lineCounterSpacer = lineCounter < 10 ? "  " : " ";
+                    string attractionValueSpacer = animal.AttractionValue < 10 ? "       " : animal.AttractionValue < 100 ? "      " : "     ";
 
-                    if (lineCounter < 10)
-                    {
-                        Console.WriteLine($"{lineCounter}.  {animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
-                                          $"\t\tCurrently Own: {animal.Quantity}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"{lineCounter}. {animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
-                                          $"\t\tCurrently Own: {animal.Quantity}");
-                    }
+                    //Write line listing animal to the console
+                    Console.WriteLine($"{lineCounter}.{lineCounterSpacer}{animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
+                                      $"\t{attractionValueSpacer}{animal.AttractionValue}\t {animalDailyCostSpacer}" +
+                                      $"{animal.DailyCost:C0}{currentlyOwnSpacer}      {animal.Quantity}");
                    
                     lineCounter++;
                 }
@@ -786,69 +1000,37 @@ namespace ZooCreator
 
                 totalCost = allAnimals[optionNumberInt - 1].Price * quantityInt;
 
-                if (cashOnHand < totalCost)
+                if (cashOnHand[0] < totalCost)
                 {
                     Console.WriteLine("Uh oh! You don't have enough money to make this purchase. Please start a new purchase.");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else
                 {
-                    remainingCashOnHand = cashOnHand - totalCost;
-                    cashOnHand = remainingCashOnHand;
+                    cashOnHand[0] -= totalCost;
                     allAnimals[optionNumberInt - 1].Buy(quantityInt);
+                    totalAttractionScore[0] += allAnimals[optionNumberInt - 1].AttractionValue * quantityInt;
 
-                    if (quantityInt != 1 && (allAnimals[optionNumberInt - 1].Quantity - quantityInt) == 0)
+                    string animalName = quantityInt != 1 ? allAnimals[optionNumberInt - 1].Name.Pluralize() : allAnimals[optionNumberInt - 1].Name;
+                    string wereOrWas = quantityInt != 1 ? "were" : "was";
+
+
+                    if ((allAnimals[optionNumberInt - 1].Quantity - quantityInt) == 0)
                     {
+                        Console.Clear();
                         Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name.Pluralize()}!");
                         Console.WriteLine();
-                        DisplayZooMapLite(allPhysicalSpaces);
-                        Console.WriteLine($"Now, where would you like to put the {allAnimals[optionNumberInt - 1].Name.Pluralize()}" +
-                                           "?\r\nEnter a space (A-P) from the Zoo Map.");
-                    }
-                    else if (allAnimals[optionNumberInt - 1].Quantity - quantityInt == 0)
-                    {
-                        Console.WriteLine($"Success! You just purchased a {allAnimals[optionNumberInt - 1].Name}!");
-                        Console.WriteLine();
-                        DisplayZooMapLite(allPhysicalSpaces);
-                        Console.WriteLine($"Now, where would you like to put the {allAnimals[optionNumberInt - 1].Name}" +
-                                           "?\r\nEnter a space (A-P) from the Zoo Map.");
-                    }
-                    else if (quantityInt !=1)
-                    {
-                        Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name.Pluralize()}!");
-                        Console.WriteLine();
-                        Console.WriteLine($"Each type of animal can only live in one exhibit. Because you already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
-                                          $"\r\nyour new {allAnimals[optionNumberInt - 1].Name.Pluralize()} were added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
-                        
-                        int indexOfPhysicalSpace = 0;
-                        for (int i = 0; i < allPhysicalSpaces.Length; i++)
-                        {
-                            if (allPhysicalSpaces[i].SpaceID == allAnimals[optionNumberInt - 1].Location)
-                            {
-                                indexOfPhysicalSpace = i;
-                                break;
-                            }
-                            else
-                            {
-                                continue;
-                            }
-                        }
-                        
-                        allPhysicalSpaces[indexOfPhysicalSpace].AnimalQuantity += quantityInt;
-                        Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
-                        Console.ReadLine();
-                        animalsNotPlaced = false;
-                        continue;
+                        DisplayZooMapLite(allPhysicalSpaces, showMapTitle);
+                        Console.WriteLine($"Now, where would you like to put the {animalName}?\r\nEnter a space (A-P) from the Zoo Map.");
                     }
                     else
                     {
-                        Console.WriteLine($"Success! You just purchased {quantityString} {allAnimals[optionNumberInt - 1].Name}!");
+                        Console.WriteLine($"Success! You just purchased {quantityString} {animalName}!");
                         Console.WriteLine();
                         Console.WriteLine($"Each type of animal can only live in one exhibit. Because you already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
-                                          $"\r\nyour new {allAnimals[optionNumberInt - 1].Name} was added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
+                                          $"\r\nyour new {animalName} {wereOrWas} added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
                         
                         int indexOfPhysicalSpace = 0;
                         for (int i = 0; i < allPhysicalSpaces.Length; i++)
@@ -863,10 +1045,10 @@ namespace ZooCreator
                                 continue;
                             }
                         }
-
+                        
                         allPhysicalSpaces[indexOfPhysicalSpace].AnimalQuantity += quantityInt;
                         Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
                         animalsNotPlaced = false;
                         continue;
@@ -887,19 +1069,9 @@ namespace ZooCreator
                             allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].AnimalQuantity = quantityInt;
                             allAnimals[optionNumberInt - 1].Location = allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].SpaceID;
 
-                            if (quantityInt != 1)
-                            {
-                                Console.WriteLine($"Success! You just placed your new {allAnimals[optionNumberInt - 1].Name.Pluralize()} in exhibit { spaceOption}.");
-
-
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Success! You just placed your new {allAnimals[optionNumberInt - 1].Name} in exhibit { spaceOption}.");
-                            }
-
+                            Console.WriteLine($"Success! You just placed your new {animalName} in exhibit {spaceOption}.");
                             Console.WriteLine();
-                            Console.WriteLine("Press \"Enter\" to continue");
+                            Console.WriteLine("Press \"Enter\" to continue...");
                             Console.ReadLine();
                             animalsNotPlaced = false;
                         }
@@ -908,19 +1080,10 @@ namespace ZooCreator
                             allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].AnimalQuantity += quantityInt;
                             allAnimals[optionNumberInt - 1].Location = allPhysicalSpaces[spaceOptions.IndexOf(spaceOption)].SpaceID;
 
-                            if (quantityInt != 1)
-                            {
-                                Console.WriteLine($"Success! You just added your new {allAnimals[optionNumberInt - 1].Name.Pluralize()} to exhibit { spaceOption}.");
-
-
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Success! You just added your new {allAnimals[optionNumberInt - 1].Name} to exhibit { spaceOption}.");
-                            }
+                            Console.WriteLine($"Success! You just added your new {animalName} to exhibit {spaceOption}.");
 
                             Console.WriteLine();
-                            Console.WriteLine("Press \"Enter\" to continue");
+                            Console.WriteLine("Press \"Enter\" to continue...");
                             Console.ReadLine();
                             animalsNotPlaced = false;
                         }
@@ -945,9 +1108,10 @@ namespace ZooCreator
             while (!exitMenu);
         }
 
-        static void ArrangeAnimals(PhysicalSpaces[] allPhysicalSpaces, List<Animals> allAnimals, int dayNumber, decimal cashOnHand)
+        static void ArrangeAnimals(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
             bool exit = false;
+            bool showMapTitle = false;
             int counter;
             string userOptionAnimalToMove;
             string userOptionDestination;
@@ -970,29 +1134,32 @@ namespace ZooCreator
                 totalNumberOfAnimals = 0;
                 transferComplete = false;
                 List<string> validUserOptions = new List<string>();
-                List<Animals> selectableAnimals = new List<Animals>();
+                List<Animal> selectableAnimals = new List<Animal>();
 
                 Console.Clear();
-                DisplayDashboard(dayNumber, cashOnHand);
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
 
-                foreach (Animals animal in allAnimals)
+                foreach (Animal animal in allAnimals)
                 {
                     totalNumberOfAnimals += animal.Quantity;
                 }
 
                 if (totalNumberOfAnimals == 0)
                 {
+                    Console.WriteLine("------------------ ARRANGE ZOO ANIMALS ------------------");
+                    Console.WriteLine();
                     Console.WriteLine("It looks like you don't have any animals right now.\r\nCome back after you've purchased some!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                     return;
                 }
 
-                DisplayZooMapLite(allPhysicalSpaces);
-                Console.WriteLine("--------------- ARRANGE ZOO ANIMALS ---------------");
+                Console.WriteLine("------------------ ARRANGE ZOO ANIMALS ------------------");
                 Console.WriteLine();
-                foreach (Animals animal in allAnimals)
+                DisplayZooMapLite(allPhysicalSpaces, showMapTitle);
+
+                foreach (Animal animal in allAnimals)
                 {
                     if (animal.Quantity > 0)
                     {
@@ -1005,13 +1172,16 @@ namespace ZooCreator
                             nameSpacer += " ";
                         }
 
-                        Console.WriteLine(counter + ". " + animal.Name + nameSpacer + "Qty: " + animal.Quantity + "\tCurrent Location: " + animal.Location);
+                        string numberSpacer = selectableAnimals.Count < 10 ? " " : "  ";
+
+                        Console.WriteLine($"{counter}.{numberSpacer}{animal.Name}{nameSpacer}Qty: {animal.Quantity:N0}\t     Current Location: {animal.Location}");
                         validUserOptions.Add(counter.ToString());
                         counter++;
                     }
                 }
                 
                 validUserOptions.Add("E");
+                Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine("Enter the option for the animal(s) you would like to move, or \"E\" to exit:");
                 userOptionAnimalToMove = GetUserInput(validUserOptions);
@@ -1085,7 +1255,7 @@ namespace ZooCreator
             while (!exit);
         }
 
-        static void EditConcessionsItems(List<Sundry> allConcessionsItems, int dayNumber, decimal cashOnHand)
+        static void EditConcessionsItems(List<Sundry> allConcessionsItems, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
             List<string> validOptions = new List<string>() { "1", "2", "3", "E" };
             List<string> optionsText = new List<string>()
@@ -1108,7 +1278,7 @@ namespace ZooCreator
                 newItemPrice = 0;
                 newItemPriceString = "";
                 Console.Clear();
-                DisplayDashboard(dayNumber, cashOnHand);
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("------ CHANGE CONCESSIONS STAND ITEMS ------");
                 DisplayCurrentSundries(allConcessionsItems);
                 DisplaySundriesOptionsMenu(validOptions, optionsText);
@@ -1125,7 +1295,7 @@ namespace ZooCreator
                     Console.WriteLine("Oops! You don't have any items in the Concessions Stand yet.");
                     Console.WriteLine("Add an item in order to edit it.");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else if (userInput == "1")
@@ -1137,10 +1307,11 @@ namespace ZooCreator
                     Console.WriteLine("Enter the price of the new item:");
                     newItemPriceString = Console.ReadLine();
 
-                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
+                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0 || newItemPrice > 100 ||
+                           ((newItemPrice * 100) - Math.Floor(newItemPrice * 100)) > 0 )
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount that is $100.00 or less (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1148,7 +1319,7 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine($"Success! The item {newItemNameOrSelection} was added to the concessions stand!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else if (userInput == "2")
@@ -1175,7 +1346,7 @@ namespace ZooCreator
                         Console.WriteLine();
                         Console.WriteLine("Item successfully removed!");
                         Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
                     }
                     else if (confirmChoice == "N")
@@ -1186,7 +1357,7 @@ namespace ZooCreator
                                            allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name +
                                           "s any day now!");
                         Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
                     }
 
@@ -1209,10 +1380,11 @@ namespace ZooCreator
                                       allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name + ":");
                     newItemPriceString = Console.ReadLine();
 
-                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
+                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0 || newItemPrice > 100 ||
+                                               ((newItemPrice * 100) - Math.Floor(newItemPrice * 100)) > 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount that is $100.00 or less (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1220,14 +1392,14 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine("Item price successfully changed!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
             }
             while (!exit);
         }
 
-        static void EditGiftShopItems(List<Sundry> allGiftShopItems, int dayNumber, decimal cashOnHand)
+        static void EditGiftShopItems(List<Sundry> allGiftShopItems, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
             List<string> validOptions = new List<string>() { "1", "2", "3", "E" };
             List<string> optionsText = new List<string>()
@@ -1250,7 +1422,7 @@ namespace ZooCreator
                 newItemPrice = 0;
                 newItemPriceString = "";
                 Console.Clear();
-                DisplayDashboard(dayNumber, cashOnHand);
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("------ CHANGE GIFT SHOP ITEMS ------");
                 DisplayCurrentSundries(allGiftShopItems);
                 DisplaySundriesOptionsMenu(validOptions, optionsText);
@@ -1267,7 +1439,7 @@ namespace ZooCreator
                     Console.WriteLine("Oops! You don't have any items in the Gift Shop yet.");
                     Console.WriteLine("Add an item in order to edit it.");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else if (userInput == "1")
@@ -1279,10 +1451,11 @@ namespace ZooCreator
                     Console.WriteLine("Enter the price of the new item:");
                     newItemPriceString = Console.ReadLine();
 
-                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
+                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0 || newItemPrice > 100 ||
+                           ((newItemPrice * 100) - Math.Floor(newItemPrice * 100)) > 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount that is $100.00 or less (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1290,7 +1463,7 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine($"Success! The item {newItemNameOrSelection} was added to the gift shop!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else if (userInput == "2")
@@ -1317,7 +1490,7 @@ namespace ZooCreator
                         Console.WriteLine();
                         Console.WriteLine("Item successfully removed!");
                         Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
                     }
                     else if (confirmChoice == "N")
@@ -1327,7 +1500,7 @@ namespace ZooCreator
                         Console.WriteLine("Who knows? Maybe the " + allGiftShopItems[Convert.ToInt32(newItemNameOrSelection)-1].Name +
                                           "s will start flying off the shelves!");
                         Console.WriteLine();
-                        Console.WriteLine("Press \"Enter\" to continue");
+                        Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
                     }
 
@@ -1350,10 +1523,11 @@ namespace ZooCreator
                                       allGiftShopItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name + ":");
                     newItemPriceString = Console.ReadLine();
 
-                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0)
+                    while (!Decimal.TryParse(newItemPriceString, out newItemPrice) || newItemPrice <= 0 || newItemPrice > 100 ||
+                           ((newItemPrice * 100) - Math.Floor(newItemPrice * 100)) > 0)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid price. Please enter a positive dollar amount for the item's price (ex: 3.00):");
+                        Console.WriteLine("Invalid price. Please enter a positive dollar amount that is $100.00 or less (ex: 3.00):");
                         newItemPriceString = Console.ReadLine();
                     }
 
@@ -1361,7 +1535,7 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine("Item price successfully changed!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
 
                 }
@@ -1415,7 +1589,7 @@ namespace ZooCreator
             }
         }
 
-        static void SellZooAnimals(PhysicalSpaces[] allPhysicalSpaces, List<Animals> allAnimals, decimal cashOnHand, int dayNumber, out decimal remainingCashOnHand)
+        static void SellZooAnimals(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {
             int lineCounter;
             string optionNumberString;
@@ -1425,7 +1599,6 @@ namespace ZooCreator
             int totalSale;
             bool exit = false;
             string confirmChoice;
-            remainingCashOnHand = cashOnHand;
 
             do
             {
@@ -1433,10 +1606,12 @@ namespace ZooCreator
                 lineCounter = 1;
                 totalSale = 0;
 
-                DisplayDashboard(dayNumber, cashOnHand);
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+                Console.WriteLine("-------------------------- SELL ANIMALS --------------------------");
+                Console.WriteLine();
 
                 int totalAnimals = 0;
-                foreach (Animals animal in allAnimals)
+                foreach (Animal animal in allAnimals)
                 {
                     totalAnimals += animal.Quantity;
                 }
@@ -1445,67 +1620,52 @@ namespace ZooCreator
                 {
                     Console.WriteLine("It looks like you don't have any animals right now.\r\nCome back after you've purchased some!");
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                     return;
                 }
 
                 List<string> validAnimalOptions = new List<string>();
-                List<Animals> sellableAnimals = new List<Animals>();
+                List<Animal> sellableAnimals = new List<Animal>();
 
-                Console.WriteLine("-------------------------- SELL ANIMALS --------------------------");
+                Console.WriteLine("                                  ATTRACTION");
+                Console.WriteLine("                         SELL       SCORE       DAILY    CURRENTLY");
+                Console.WriteLine("#   NAME                PRICE    (out of 100)    COST       OWN");
                 Console.WriteLine();
-                foreach (Animals animal in allAnimals)
-                {
-                    string dollarAmtSpacer = "";
-                    string nameSpacer = "";
-                    int standardNameLength = 18;
-                    int nameSpacerLength = 0;
 
+                foreach (Animal animal in allAnimals)
+                {
                     if (animal.Quantity != 0)
                     {
                         validAnimalOptions.Add(lineCounter.ToString());
                         sellableAnimals.Add(animal);
-                        
-                        if (Math.Floor(animal.Price * .6m) >= 10000)
-                        {
-                            dollarAmtSpacer = " ";
-                        }
-                        else if (Math.Floor(animal.Price * .6m) >= 1000 && Math.Floor(animal.Price * .6m) < 10000)
-                        {
-                            dollarAmtSpacer = "  ";
-                        }
-                        else if (Math.Floor(animal.Price * .6m) >= 100 && Math.Floor(animal.Price * .6m) < 1000)
-                        {
-                            dollarAmtSpacer = "    ";
-                        }
-                        else if (Math.Floor(animal.Price * .6m) >= 10 && Math.Floor(animal.Price * .6m) < 100)
-                        {
-                            dollarAmtSpacer = "     ";
-                        }
-                        else if (Math.Floor(animal.Price * .6m) >= 0 && Math.Floor(animal.Price * .6m) < 10)
-                        {
-                            dollarAmtSpacer = "      ";
-                        }
+                        decimal animalSellPrice = Math.Floor(animal.Price * .6m);
 
-                        nameSpacerLength = standardNameLength - animal.Name.Length;
+                        //Create the dollarAmtSpacer
+                        decimal price = animal.Price;
+                        string dollarAmtSpacer = (animalSellPrice >= 1000 && animalSellPrice < 10000) ? " " :
+                                                    (animalSellPrice >= 100 && animalSellPrice < 1000) ? "   " :
+                                                        (animalSellPrice >= 10 && animalSellPrice < 100) ? "    " :
+                                                            (animalSellPrice >= 0 && animalSellPrice < 10) ? "     " : "";
+
+                        //Create the nameSpacer
+                        string nameSpacer = "";
+                        int standardNameLength = 18;
+                        int nameSpacerLength = standardNameLength - animal.Name.Length;
 
                         for (int i = 0; i < nameSpacerLength; i++)
                         {
                             nameSpacer += " ";
                         }
 
+                        string animalDailyCostSpacer = animal.DailyCost < 10 ? "  " : animal.DailyCost < 100 ? " " : "";
+                        string currentlyOwnSpacer = animal.Quantity < 10 ? "  " : animal.Quantity < 100 ? " " : "";
+                        string lineCounterSpacer = lineCounter < 10 ? "  " : " ";
+                        string attractionValueSpacer = animal.AttractionValue < 10 ? "          " : animal.AttractionValue < 100 ? "         " : "        ";
 
-                        if (lineCounter < 10)
-                        {
-                            Console.WriteLine($"{lineCounter}.  {animal.Name}{nameSpacer}Sell Price:{dollarAmtSpacer}" +
-                                              $"{Math.Floor(animal.Price * .6m):C0}\tCurrently Own: {animal.Quantity}");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"{lineCounter}. {animal.Name}{nameSpacer}Sell Price:{dollarAmtSpacer}" +
-                                              $"{Math.Floor(animal.Price * .6m):C0}\tCurrently Own: {animal.Quantity}");
-                        }
+                        Console.WriteLine($"{lineCounter}.{lineCounterSpacer}{animal.Name}{nameSpacer}{dollarAmtSpacer}{animalSellPrice:C0}" +
+                                          $"{attractionValueSpacer}{animal.AttractionValue}{animalDailyCostSpacer}        " +
+                                          $" {animal.DailyCost:C0}{currentlyOwnSpacer}       {animal.Quantity}");
 
                         lineCounter++;
                     }
@@ -1535,25 +1695,19 @@ namespace ZooCreator
                 sellQuantityInt = Convert.ToInt32(sellQuantityString);
                 totalSale = Convert.ToInt32(Math.Floor(sellableAnimals[optionNumberInt - 1].Price * .6m)) * sellQuantityInt;
 
-                Console.WriteLine();
-                if (sellQuantityInt != 1)
-                {
-                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} {sellableAnimals[optionNumberInt - 1].Name.Pluralize()}" +
-                                      $" for a total of {totalSale:C2}?\r\nEnter \"Y\" or \"N\":");
-                }
-                else
-                {
-                    Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} {sellableAnimals[optionNumberInt - 1].Name}" +
-                                      $" for a total of {totalSale:C2}?\r\nEnter \"Y\" or \"N\":");
-                }
+                string sellAnimalName = sellQuantityInt != 1 ? sellableAnimals[optionNumberInt - 1].Name.Pluralize() : sellableAnimals[optionNumberInt - 1].Name;
 
+
+                Console.WriteLine();
+                Console.WriteLine($"Are you sure you want to sell {sellQuantityInt} {sellAnimalName} for a total of {totalSale:C0}?\r\nEnter \"Y\" or \"N\":");
+       
                 confirmChoice = GetUserInput(new List<string>() { "Y", "N" });
 
                 if (confirmChoice == "Y")
                 {
-                    remainingCashOnHand = cashOnHand + totalSale;
-                    cashOnHand = remainingCashOnHand;
+                    cashOnHand[0] += totalSale;
                     sellableAnimals[optionNumberInt - 1].Sell(sellQuantityInt);
+                    totalAttractionScore[0] -= sellableAnimals[optionNumberInt - 1].AttractionValue * sellQuantityInt;
 
                     List<string> spaceOptions = new List<string>() { "A", "B", "C", "D", "", "E", "F", "G", "H", "", "I", "J", "K",
                                                                      "L", "M", "N", "O", "P", "", "" };
@@ -1570,76 +1724,55 @@ namespace ZooCreator
                             sellableAnimals[optionNumberInt - 1].Quantity;
                     }
 
-                    if (sellQuantityInt != 1)
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("Success! You sold " + sellQuantityInt + " " + sellableAnimals[optionNumberInt - 1].Name.Pluralize() + " for a total of $" + totalSale + ".");
-                    }
-                    else
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("Success! You sold a " + sellableAnimals[optionNumberInt - 1].Name + " for $" + totalSale + ".");
-                    }
-
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine($"Success! You sold {sellQuantityInt} {sellAnimalName} for a total of {totalSale:C0}.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
                 else if (confirmChoice == "N")
                 {
                     Console.WriteLine();
-                    if (sellQuantityInt != 1)
-                    {
-                        Console.WriteLine("That was a close call!\r\nThe " + sellableAnimals[optionNumberInt - 1].Name.Pluralize() +
-                                          " are relieved they weren't sold, but will be sleeping with one eye open!");
-                    }
-                    else
-                    {
-                        Console.WriteLine("That was a close call!\r\nThe " + sellableAnimals[optionNumberInt - 1].Name +
-                                                                  "is relieved to not be sold, but will be sleeping with one eye open!");
-                    }
-                    
+                    string animalMessage = sellQuantityInt != 1 ? "are relieved they weren't sold" : "is relieved to not be sold";
+
+                    Console.WriteLine($"That was a close call!\r\nThe {sellAnimalName} {animalMessage}, but will be sleeping with one eye open!");                  
                     Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue");
+                    Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
             }
             while (!exit);
         }
 
-        static void AdvanceDay(PhysicalSpaces[] allPhysicalSpaces, List<Animals> allAnimals, List<Sundry> allConcessionsItems, List<Sundry> allGiftShopItems, decimal cashOnHand, int dayNumberIn, out decimal remainingCashOnHand, out int dayNumber)
+        static void AdvanceDay(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, List<Sundry> allConcessionsItems,
+                               List<Sundry> allGiftShopItems, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore,
+                               decimal[] ticketPrice)
         {
             Random random = new Random();
             
-            remainingCashOnHand = cashOnHand;
-            dayNumber = dayNumberIn + 1;
+            dayNumber[0] += 1;
             Console.Clear();
-            DisplayDashboard(dayNumberIn, cashOnHand);
+            DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
 
-            double totalAnimalAttScore = 0;
+            double totalAnimalAttScore = totalAttractionScore[0];
             int attendance = 0;
             decimal totalAnimalCost = 0;
             decimal concessionsIncome = 0;
 
-            foreach(Animals animal in allAnimals)
-            {
-                totalAnimalAttScore += animal.AttractionValue * animal.Quantity;
-            }
-
-            foreach (Animals animal in allAnimals)
+            foreach (Animal animal in allAnimals)
             {
                 totalAnimalCost += animal.DailyCost * animal.Quantity;
             }
 
-            if (totalAnimalAttScore < 1000)
+            if (totalAnimalAttScore < 750)
             {
                 attendance = random.Next(0, 50);
             }
-            else if (totalAnimalAttScore >= 1000 && totalAnimalAttScore < 2000)
+            else if (totalAnimalAttScore >= 750 && totalAnimalAttScore < 1500)
             {
                 attendance = random.Next(50, 100);
             }
-            else if (totalAnimalAttScore >= 2000 && totalAnimalAttScore < 3000)
+            else if (totalAnimalAttScore >= 1500 && totalAnimalAttScore < 2250)
             {
                 attendance = random.Next(100, 150);
             }
@@ -1679,14 +1812,23 @@ namespace ZooCreator
                     concessionsIncome += item.Price * attendance * (random.Next(0,5) / 100);
                 }
 
-                remainingCashOnHand = (decimal)(remainingCashOnHand + Convert.ToInt32(concessionsIncome) - Convert.ToInt32(totalAnimalCost));
+                cashOnHand[0] = (decimal)(cashOnHand[0] + Convert.ToInt32(concessionsIncome) - Convert.ToInt32(totalAnimalCost));
             }
             
         }
-        static void ExitProgram()
+        static void ExitProgram(bool thankYouForPlaying)
         {
+            if(thankYouForPlaying)
+            {
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("Thank you for playing! Goodbye!");
+            }
+
             Console.WriteLine();
-            Console.WriteLine("Thank you for playing! See you next time!");
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to exit the game...");
+            Console.ReadLine();
         }
     }
 }

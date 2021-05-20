@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ZooCreator
 {
-    class Animals
+    class Animal
     {
-        public Animals(string name, decimal price, int quantity, decimal dailyCost, int attractionValue)
+        public Animal(string name, decimal price, int quantity, decimal dailyCost, int attractionValue)
         {
             this.Name = name;
             this.Price = price;
