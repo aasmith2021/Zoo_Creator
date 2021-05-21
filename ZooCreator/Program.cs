@@ -122,8 +122,11 @@ namespace ZooCreator
             Console.WriteLine(" ZZ       OO  OO    OO  OO");
             Console.WriteLine("ZZZZZZ    OOOOOO    OOOOOO");
             Console.WriteLine();
-            Console.WriteLine("OF MAGIC AND ANIMAL WONDER!\r\n\r\n");
+            Console.WriteLine("OF MAGIC AND ANIMAL WONDER!");
+            Console.WriteLine();
+            Console.WriteLine();
             Console.WriteLine("Press Enter to continue, or \"S\" to skip introduction.");
+
             string skip = Console.ReadLine().ToUpper();
 
             if (skip == "S")
@@ -425,26 +428,26 @@ namespace ZooCreator
 
         static List<Animal> GenerateZooAnimals()
         {
-            Animal aardvarks = new Animal("Aardvark", 300.00m, 0, 45.00m, 19);
-            Animal bearcats = new Animal("Bearcat", 600.00m, 0, 40.00m, 43);
-            Animal cheetahs = new Animal("Cheetah", 3000.00m, 0, 275.00m, 62);
-            Animal chinchillas = new Animal("Chinchilla", 250.00m, 0, 7.00m, 14);
-            Animal dolphins = new Animal("Dolphin", 5500.00m, 0, 400.00m, 95);
-            Animal giantTortoises = new Animal("Giant Tortoise", 400.00m, 0, 7.00m, 28);
-            Animal giraffes = new Animal("Giraffe", 4500.00m, 0, 300.00m, 69);
-            Animal hippos = new Animal("Hippopotamus", 12000.00m, 0, 600.00m, 97);
-            Animal iguanas = new Animal("Iguana", 150.00m, 0, 3.00m, 8);
-            Animal kiaBirds = new Animal("Kia Bird", 200.00m, 0, 14.00m, 13);
-            Animal lemurs = new Animal("Lemur", 600.00m, 0, 45.00m, 40);
-            Animal lions = new Animal("Lion", 9500.00m, 0, 250.00m, 87);
-            Animal macaws = new Animal("Macaw", 275.00m, 0, 8.00m, 13);
-            Animal penguins = new Animal("Penguin", 500.00m, 0, 25.00m, 38);
-            Animal polarBears = new Animal("Polar Bear", 12500.00m, 0, 625.00m, 100);
-            Animal rattlesnakes = new Animal("Rattle Snake", 100.00m, 0, 10.00m, 11);
-            Animal rhinos = new Animal("Rhinoceros", 10500.00m, 0, 300.00m, 93);
-            Animal seaLions = new Animal("Sea Lion", 2500.00m, 0, 450.00m, 58);
-            Animal sugarGliders = new Animal("Sugar Glider", 100.00m, 0, 10.00m, 9);
-            Animal wolves = new Animal("Wolf", 3500.00m, 0, 240.00m, 68);
+            Animal aardvarks = new Animal("Aardvark", 300.00m, 0, 45.00m, 12);
+            Animal bearcats = new Animal("Bearcat", 750.00m, 0, 40.00m, 47);
+            Animal cheetahs = new Animal("Cheetah", 3000.00m, 0, 275.00m, 200);
+            Animal chinchillas = new Animal("Chinchilla", 250.00m, 0, 7.00m, 9);
+            Animal dolphins = new Animal("Dolphin", 5500.00m, 0, 400.00m, 375);
+            Animal giantTortoises = new Animal("Giant Tortoise", 400.00m, 0, 7.00m, 22);
+            Animal giraffes = new Animal("Giraffe", 4500.00m, 0, 300.00m, 300);
+            Animal hippos = new Animal("Hippopotamus", 14000.00m, 0, 600.00m, 1050);
+            Animal iguanas = new Animal("Iguana", 150.00m, 0, 3.00m, 5);
+            Animal kiaBirds = new Animal("Kia Bird", 200.00m, 0, 14.00m, 7);
+            Animal lemurs = new Animal("Lemur", 600.00m, 0, 45.00m, 36);
+            Animal lions = new Animal("Lion", 12500.00m, 0, 250.00m, 900);
+            Animal macaws = new Animal("Macaw", 275.00m, 0, 8.00m, 10);
+            Animal penguins = new Animal("Penguin", 500.00m, 0, 25.00m, 29);
+            Animal polarBears = new Animal("Polar Bear", 16000.00m, 0, 625.00m, 1225);
+            Animal rattlesnakes = new Animal("Rattle Snake", 100.00m, 0, 10.00m, 3);
+            Animal rhinos = new Animal("Rhinoceros", 10500.00m, 0, 300.00m, 750);
+            Animal seaLions = new Animal("Sea Lion", 2500.00m, 0, 450.00m, 165);
+            Animal sugarGliders = new Animal("Sugar Glider", 125.00m, 0, 10.00m, 4);
+            Animal wolves = new Animal("Wolf", 3500.00m, 0, 240.00m, 235);
 
             List<Animal> allAnimals = new List<Animal>() { aardvarks, bearcats, cheetahs, chinchillas, dolphins, giantTortoises,
                                                              giraffes, hippos, iguanas, kiaBirds, lemurs, lions, macaws, penguins,
@@ -937,9 +940,8 @@ namespace ZooCreator
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("-------------------------- BUY NEW ANIMALS --------------------------");
                 Console.WriteLine();
-                Console.WriteLine("                                  ATTRACTION");
-                Console.WriteLine("                                    SCORE       DAILY    CURRENTLY");
-                Console.WriteLine("#   NAME                PRICE    (out of 100)    COST       OWN");
+                Console.WriteLine("                                  ATTRACTION    DAILY    CURRENTLY");
+                Console.WriteLine("#   NAME                PRICE       SCORE        COST       OWN");
                 Console.WriteLine();
 
                 foreach (Animal animal in allAnimals)
@@ -1639,9 +1641,8 @@ namespace ZooCreator
                 List<string> validAnimalOptions = new List<string>();
                 List<Animal> sellableAnimals = new List<Animal>();
 
-                Console.WriteLine("                                  ATTRACTION");
-                Console.WriteLine("                         SELL       SCORE       DAILY    CURRENTLY");
-                Console.WriteLine("#   NAME                PRICE    (out of 100)    COST       OWN");
+                Console.WriteLine("                         SELL     ATTRACTION    DAILY    CURRENTLY");
+                Console.WriteLine("#   NAME                PRICE       SCORE        COST       OWN");
                 Console.WriteLine();
 
                 foreach (Animal animal in allAnimals)
@@ -2156,6 +2157,12 @@ namespace ZooCreator
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to exit the game...");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("By Aaron Smith, Copyright 2021");
             Console.ReadLine();
         }
     }
