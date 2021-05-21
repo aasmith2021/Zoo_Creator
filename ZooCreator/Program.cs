@@ -967,11 +967,11 @@ namespace ZooCreator
                     string animalDailyCostSpacer = animal.DailyCost < 10 ? "  " : animal.DailyCost < 100 ? " " : "";
                     string currentlyOwnSpacer = animal.Quantity < 10 ? "  " : animal.Quantity < 100 ? " " : "";
                     string lineCounterSpacer = lineCounter < 10 ? "  " : " ";
-                    string attractionValueSpacer = animal.AttractionValue < 10 ? "       " : animal.AttractionValue < 100 ? "      " : "     ";
+                    string attractionValueSpacer = animal.AttractionValue < 10 ? "       " : animal.AttractionValue < 100 ? "      " : animal.AttractionValue < 1000 ? "     " : "   ";
 
                     //Write line listing animal to the console
                     Console.WriteLine($"{lineCounter}.{lineCounterSpacer}{animal.Name}{nameSpacer}{dollarAmtSpacer}{animal.Price:C0}" +
-                                      $"\t{attractionValueSpacer}{animal.AttractionValue}\t {animalDailyCostSpacer}" +
+                                      $"\t {attractionValueSpacer}{animal.AttractionValue:N0}\t {animalDailyCostSpacer}" +
                                       $"{animal.DailyCost:C0}{currentlyOwnSpacer}      {animal.Quantity}");
                    
                     lineCounter++;
@@ -1673,11 +1673,11 @@ namespace ZooCreator
                         string animalDailyCostSpacer = animal.DailyCost < 10 ? "  " : animal.DailyCost < 100 ? " " : "";
                         string currentlyOwnSpacer = animal.Quantity < 10 ? "  " : animal.Quantity < 100 ? " " : "";
                         string lineCounterSpacer = lineCounter < 10 ? "  " : " ";
-                        string attractionValueSpacer = animal.AttractionValue < 10 ? "          " : animal.AttractionValue < 100 ? "         " : "        ";
+                        string attractionValueSpacer = animal.AttractionValue < 10 ? "       " : animal.AttractionValue < 100 ? "      " : animal.AttractionValue < 1000 ? "     " : "   ";
 
                         Console.WriteLine($"{lineCounter}.{lineCounterSpacer}{animal.Name}{nameSpacer}{dollarAmtSpacer}{animalSellPrice:C0}" +
-                                          $"{attractionValueSpacer}{animal.AttractionValue}{animalDailyCostSpacer}        " +
-                                          $" {animal.DailyCost:C0}{currentlyOwnSpacer}       {animal.Quantity}");
+                                          $"    {attractionValueSpacer}{animal.AttractionValue:N0}{animalDailyCostSpacer}        " +
+                                          $"{animal.DailyCost:C0}{currentlyOwnSpacer}      {animal.Quantity}");
 
                         lineCounter++;
                     }
