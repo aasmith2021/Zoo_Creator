@@ -1316,6 +1316,14 @@ namespace ZooCreator
                     Console.WriteLine("--- ADD A NEW ITEM ---");
                     Console.WriteLine("Enter the name of the new item:");
                     newItemNameOrSelection = Console.ReadLine();
+
+                    while (newItemNameOrSelection.Length > 21)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("Invalid entry. Please enter an item name that is 21 characters or less.");
+                        newItemNameOrSelection = Console.ReadLine();
+                    }
+
                     Console.WriteLine();
                     Console.WriteLine("Enter the price of the new item:");
                     newItemPriceString = Console.ReadLine();
@@ -1460,6 +1468,14 @@ namespace ZooCreator
                     Console.WriteLine("--- ADD A NEW ITEM ---");
                     Console.WriteLine("Enter the name of the new item:");
                     newItemNameOrSelection = Console.ReadLine();
+
+                    while (newItemNameOrSelection.Length > 21)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("Invalid entry. Please enter an item name that is 21 characters or less.");
+                        newItemNameOrSelection = Console.ReadLine();
+                    }
+
                     Console.WriteLine();
                     Console.WriteLine("Enter the price of the new item:");
                     newItemPriceString = Console.ReadLine();
@@ -1848,7 +1864,7 @@ namespace ZooCreator
                 concessionsIncome += percentOfAttendessWhoWillBuy * attendance;
             }
 
-            concessionsCostToRun = Math.Round((((decimal)allConcessionsItems.Count / 3) * 400) + 400, 2);
+            concessionsCostToRun = Math.Round((((decimal)allConcessionsItems.Count / 3) * 100) + 400, 2);
 
             //Calculate Gift Shop Income/Loss
             decimal giftShopIncome = 0;
@@ -1871,7 +1887,7 @@ namespace ZooCreator
 
             giftShopIncome = Math.Round(giftShopIncome, 2);
             
-            giftShopCostToRun = Math.Round((((decimal)allGiftShopItems.Count / 2) * 200) + 400, 2);
+            giftShopCostToRun = Math.Round((((decimal)allGiftShopItems.Count / 2) * 50) + 400, 2);
 
             decimal todaysIncome = ticketIncome + concessionsIncome + giftShopIncome;
             decimal todaysExpenses = totalAnimalCost + vetBill + concessionsCostToRun + giftShopCostToRun;
