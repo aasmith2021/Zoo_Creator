@@ -940,6 +940,28 @@ namespace ZooCreator
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("-------------------------- BUY NEW ANIMALS --------------------------");
                 Console.WriteLine();
+
+                int totalPensFull = 0;
+                foreach (Animal animal in allAnimals)
+                {
+                    if (animal.Quantity > 0)
+                    {
+                        totalPensFull++;
+                    }
+                }
+
+                if (totalPensFull == 16)
+                {
+                    Console.WriteLine("Uh oh! All of the animal exhibits are full!");
+                    Console.WriteLine();
+                    Console.WriteLine("You'll have to sell some animals to create an empty exhibit in order\r\nto buy more.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
+                    Console.ReadLine();
+                    return;
+                }
+
+
                 Console.WriteLine("                                  ATTRACTION    DAILY    CURRENTLY");
                 Console.WriteLine("#   NAME                PRICE       SCORE        COST       OWN");
                 Console.WriteLine();
@@ -1000,15 +1022,20 @@ namespace ZooCreator
                     break;
                 }
 
-                Console.WriteLine($"Enter the quantity of " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to buy:");
-                quantityString = Console.ReadLine();
+                Console.WriteLine($"Enter the quantity of " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to buy, or \"B\" to go back:");
+                quantityString = Console.ReadLine().ToUpper();
                 Console.WriteLine();
 
-                while (!Int32.TryParse(quantityString, out quantityInt) || quantityInt <= 0)
+                while ((!Int32.TryParse(quantityString, out quantityInt) || quantityInt <= 0) && quantityString != "B")
                 {
                     Console.WriteLine("Invalid entry. Please try again.");
-                    quantityString = Console.ReadLine();
+                    quantityString = Console.ReadLine().ToUpper();
                     Console.WriteLine();
+                }
+
+                if (quantityString == "B")
+                {
+                    continue;
                 }
 
                 totalCost = allAnimals[optionNumberInt - 1].Price * quantityInt;
@@ -1168,6 +1195,31 @@ namespace ZooCreator
                     return;
                 }
 
+                int totalPensFull = 0;
+                foreach (Animal animal in allAnimals)
+                {
+                    if (animal.Quantity > 0)
+                    {
+                        totalPensFull++;
+                    }
+                }
+
+                if (totalPensFull == 16)
+                {
+                    Console.WriteLine("------------------ ARRANGE ZOO ANIMALS ------------------");
+                    Console.WriteLine();
+                    DisplayZooMapLite(allPhysicalSpaces, showMapTitle);
+                    Console.WriteLine();
+                    Console.WriteLine("Hmm, all of the animal exhibits are currently full.");
+                    Console.WriteLine();
+                    Console.WriteLine("If you'd like to arrange the zoo animals, you'll need\r\nto sell some animals to create " +
+                                      "an empty exhibit first.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
+                    Console.ReadLine();
+                    return;
+                }
+
                 Console.WriteLine("------------------ ARRANGE ZOO ANIMALS ------------------");
                 Console.WriteLine();
                 DisplayZooMapLite(allPhysicalSpaces, showMapTitle);
@@ -1185,9 +1237,9 @@ namespace ZooCreator
                             nameSpacer += " ";
                         }
 
-                        string numberSpacer = selectableAnimals.Count < 10 ? " " : "  ";
+                        string numberSpacer = selectableAnimals.Count < 10 ? "  " : " ";
 
-                        Console.WriteLine($"{counter}.{numberSpacer}{animal.Name}{nameSpacer}Qty: {animal.Quantity:N0}\t     Current Location: {animal.Location}");
+                        Console.WriteLine($"{counter}.{numberSpacer}{animal.Name}{nameSpacer}Qty: {animal.Quantity:N0}\t   Current Location: {animal.Location}");
                         validUserOptions.Add(counter.ToString());
                         counter++;
                     }
