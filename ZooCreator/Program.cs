@@ -17,12 +17,19 @@ namespace ZooCreator
 
             CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
                                  out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
-                                 out List<string> mainMenuOptions, out decimal[] ticketPrice);
+                                 out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory);
 
             do
             {
-                RunGame(dayNumber, cashOnHand, totalAttractionScore, allAnimals, allPhysicalSpaces, allConcessionsItems, allGiftShopItems,
-                        mainMenuOptions, ticketPrice, out continueProgram);
+                if (dayNumber[0] != 25)
+                {
+                    RunGame(dayNumber, cashOnHand, totalAttractionScore, allAnimals, allPhysicalSpaces, allConcessionsItems, allGiftShopItems,
+                            mainMenuOptions, ticketPrice, attendanceHistory, out continueProgram);
+                }
+                else
+                {
+                    EndOfGame(dayNumber, cashOnHand, totalAttractionScore, attendanceHistory, allAnimals, out continueProgram);
+                }
             }
             while (continueProgram);
 
@@ -31,7 +38,7 @@ namespace ZooCreator
 
         static void CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
                                          out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
-                                         out List<string> mainMenuOptions, out decimal[] ticketPrice)
+                                         out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory)
         {
             dayNumber = new int[] { 1 };
             cashOnHand = new decimal[] { 25000.00m };
@@ -42,10 +49,13 @@ namespace ZooCreator
             allGiftShopItems = new List<Sundry>();
             mainMenuOptions = new List<string>() { "1", "2", "3", "4", "5", "6", "7", "A", "I", "E" };
             ticketPrice = new decimal[] { 5.00m };
+            attendanceHistory = new List<int>();
+
         }
         
         static void RunGame(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore, List<Animal> allAnimals, PhysicalSpace[] allPhysicalSpaces,
-                            List<Sundry> allConcessionsItems, List<Sundry> allGiftShopItems, List<string> mainMenuOptions, decimal[] ticketPrice, out bool continueProgram)
+                            List<Sundry> allConcessionsItems, List<Sundry> allGiftShopItems, List<string> mainMenuOptions, decimal[] ticketPrice,
+                            List<int> attendanceHistory, out bool continueProgram)
         {
             continueProgram = true;
             
@@ -85,7 +95,8 @@ namespace ZooCreator
                     break;
 
                 case "A":
-                    AdvanceDay(allPhysicalSpaces, allAnimals, allConcessionsItems, allGiftShopItems, dayNumber, cashOnHand, totalAttractionScore, ticketPrice);
+                    AdvanceDay(allPhysicalSpaces, allAnimals, allConcessionsItems, allGiftShopItems, dayNumber, 
+                               cashOnHand, totalAttractionScore, ticketPrice, attendanceHistory);
                     break;
 
                 case "I":
@@ -1746,76 +1757,393 @@ namespace ZooCreator
 
         static void AdvanceDay(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, List<Sundry> allConcessionsItems,
                                List<Sundry> allGiftShopItems, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore,
-                               decimal[] ticketPrice)
+                               decimal[] ticketPrice, List<int> attendanceHistory)
         {
             Random random = new Random();
-            
-            dayNumber[0] += 1;
-            Console.Clear();
-            DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+            double totalAttScore = totalAttractionScore[0];
+            bool exit = false;
 
-            double totalAnimalAttScore = totalAttractionScore[0];
-            int attendance = 0;
+            //Calculate Weather
+            int weatherHeatScore = random.Next(40, 106);
+            int weatherHumidityScore = random.Next(20, 91);
+            double weatherCompositePercentage = 0;
+            string todaysWeather;
+
+            if (weatherHeatScore < 50 || weatherHeatScore > 92)
+            {
+                weatherCompositePercentage += -1 * (random.Next(5, 11) / 100d);
+            }
+            
+            if (weatherHeatScore > 75 && weatherHumidityScore > 75)
+            {
+                weatherCompositePercentage += -1 * (random.Next(0, 5) / 100d);
+            }
+            
+            if (weatherHeatScore > 70 && weatherHeatScore < 92 && weatherHumidityScore < 55)
+            {
+                weatherCompositePercentage += (random.Next(0, 11) / 100d);
+            }
+
+            todaysWeather = weatherCompositePercentage >= .02 ? "Very Good" :
+                                weatherCompositePercentage >= .00 ? "Good" :
+                                    weatherCompositePercentage >= -.02 ? "Fair" :
+                                        weatherCompositePercentage >= -.05 ? "Poor" : "Terrible";
+
+            //Calculate Attendance
+            int attendance;
+            decimal ticketPriceDec = ticketPrice[0];
+            decimal idealTicketPrice = (decimal)Math.Round(18492560d + ((3.03197 - 18492560d) / (1 + Math.Pow((totalAttScore / 136183200000d), .8205253d))), 2) + 2;
+            decimal actualVsIdealTktPriceDifference = Math.Round(ticketPriceDec - idealTicketPrice, 0);
+            decimal ticketPriceTooHighPenaltyMulitplier = 1m;
+
+            for (int i = 0; i < actualVsIdealTktPriceDifference; i++)
+            {
+                    ticketPriceTooHighPenaltyMulitplier -= .01m;
+            }
+
+            if (totalAttScore == 0)
+            {
+                attendance = 0;
+            }
+            else
+            {
+                attendance = (int)((Math.Floor(.8m * (decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier);
+            }
+
+            attendanceHistory.Add(attendance);
+
+            //Calculate Ticket Income
+            decimal ticketIncome;
+
+            ticketIncome = ticketPrice[0] * attendance;
+
+            //Calculate Animal Costs
             decimal totalAnimalCost = 0;
-            decimal concessionsIncome = 0;
+            decimal vetBill = 0;
 
             foreach (Animal animal in allAnimals)
             {
                 totalAnimalCost += animal.DailyCost * animal.Quantity;
             }
 
-            if (totalAnimalAttScore < 750)
-            {
-                attendance = random.Next(0, 50);
-            }
-            else if (totalAnimalAttScore >= 750 && totalAnimalAttScore < 1500)
-            {
-                attendance = random.Next(50, 100);
-            }
-            else if (totalAnimalAttScore >= 1500 && totalAnimalAttScore < 2250)
-            {
-                attendance = random.Next(100, 150);
-            }
-            else if (totalAnimalAttScore >= 3000 && totalAnimalAttScore < 4000)
-            {
-                attendance = random.Next(150, 200);
-            }
-            else if (totalAnimalAttScore >= 4000 && totalAnimalAttScore < 5000)
-            {
-                attendance = random.Next(200, 250);
-            }
+            vetBill = Math.Round(totalAnimalCost * (random.Next(0, 16) / 100m), 2);
+
+            //Calculate Concessions Income/Loss
+            decimal concessionsIncome = 0;
+            decimal concessionsCostToRun = 0;
 
             foreach (Sundry item in allConcessionsItems)
             {
-                if (item.Price < 5)
+                decimal price = item.Price;
+                decimal percentOfAttendessWhoWillBuy = 0;
+
+                percentOfAttendessWhoWillBuy = price <= 2 ? (random.Next(25, 86) / 100m) :
+                                                    price <= 5 ? (random.Next(20, 76) / 100m) :
+                                                        price <= 10 ? (random.Next(15, 66) / 100m) :
+                                                            price <= 20 ? (random.Next(10, 51) / 100m) :
+                                                                price <= 50 ? (random.Next(0, 21) / 100m) :
+                                                                    price <= 75 ? (random.Next(0, 11) / 100m) : (random.Next(0, 6) / 100m);
+
+                concessionsIncome += percentOfAttendessWhoWillBuy * attendance;
+            }
+
+            concessionsCostToRun = Math.Round((((decimal)allConcessionsItems.Count / 3) * 400) + 400, 2);
+
+            //Calculate Gift Shop Income/Loss
+            decimal giftShopIncome = 0;
+            decimal giftShopCostToRun = 0;
+
+            foreach (Sundry item in allGiftShopItems)
+            {
+                decimal price = item.Price;
+                decimal percentOfAttendessWhoWillBuy = 0;
+
+                percentOfAttendessWhoWillBuy = price <= 2 ? (random.Next(25, 76) / 100m) :
+                                                    price <= 5 ? (random.Next(20, 66) / 100m) :
+                                                        price <= 10 ? (random.Next(15, 56) / 100m) :
+                                                            price <= 20 ? (random.Next(10, 41) / 100m) :
+                                                                price <= 50 ? (random.Next(0, 16) / 100m) :
+                                                                    price <= 75 ? (random.Next(0, 8) / 100m) : (random.Next(0, 6) / 100m);
+
+                giftShopIncome += percentOfAttendessWhoWillBuy * attendance;
+            }
+
+            giftShopIncome = Math.Round(giftShopIncome, 2);
+            
+            giftShopCostToRun = Math.Round((((decimal)allGiftShopItems.Count / 2) * 200) + 400, 2);
+
+            decimal todaysIncome = ticketIncome + concessionsIncome + giftShopIncome;
+            decimal todaysExpenses = totalAnimalCost + vetBill + concessionsCostToRun + giftShopCostToRun;
+            decimal todaysGainOrLoss = todaysIncome - todaysExpenses;
+
+            do
+            {
+                Console.Clear();
+                DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+                Console.WriteLine("---------------------- DAILY ZOO REPORT ----------------------");
+                Console.WriteLine();
+                Console.WriteLine($"Today's Attendance: {attendance}");
+                Console.WriteLine($"Weather: {todaysWeather}");
+                Console.WriteLine();
+                Console.WriteLine("----------------- INCOME -----------------");
+                Console.WriteLine($"Income from Ticket Sales: {ticketIncome:C2}");
+                Console.WriteLine($"Income from Concessions Sales: {concessionsIncome:C2}");
+                Console.WriteLine($"Income from Gift Shop Sales: {giftShopIncome:C2}");
+                Console.WriteLine();
+                Console.WriteLine($"TOTAL INCOME: {todaysIncome:C2}");
+                Console.WriteLine();
+                Console.WriteLine("---------------- EXPENSES ----------------");
+                Console.WriteLine($"Cost of Daily Animal Care: {totalAnimalCost:C2}");
+                Console.WriteLine($"Cost of Veterinary Care: {vetBill:C2}");
+                Console.WriteLine($"Cost to Run Concessions Stands: {concessionsCostToRun:C2}");
+                Console.WriteLine($"Cost of Run Gift Shop: {giftShopCostToRun:C2}");
+                Console.WriteLine();
+                Console.WriteLine($"TOTAL EXPENSES: {todaysExpenses:C2}");
+                Console.WriteLine();
+                Console.WriteLine("-------------- NET GAIN/LOSS --------------");
+                Console.WriteLine();
+                if (todaysGainOrLoss < 0)
                 {
-                    concessionsIncome += item.Price * attendance * .65m;
+                    Console.WriteLine($"NET TOTAL: -${Math.Abs(todaysGainOrLoss):N2}");
                 }
-                else if (item.Price >= 5 && item.Price < 10)
+                else
                 {
-                    concessionsIncome += item.Price * attendance * .45m;
+                    Console.WriteLine($"TOTAL GAIN/LOSS: +${todaysGainOrLoss}");
                 }
-                else if (item.Price >= 10 && item.Price < 20)
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine("Enter \"H\" to see daily attendance history, or \"Enter\" to exit:");
+
+                List<string> menuOptions = new List<string>() { "H", "" };
+                string userOption = GetUserInput(menuOptions);
+
+                if (userOption == "")
                 {
-                    concessionsIncome += item.Price * attendance * .25m;
-                }
-                else if (item.Price >= 20 && item.Price < 50)
-                {
-                    concessionsIncome += item.Price * attendance * .15m;
-                }
-                else if (item.Price >= 50 && item.Price < 100)
-                {
-                    concessionsIncome += item.Price * attendance * .05m;
-                }
-                else if (item.Price >= 100)
-                {
-                    concessionsIncome += item.Price * attendance * (random.Next(0,5) / 100);
+                    exit = true;
+                    break;
                 }
 
-                cashOnHand[0] = (decimal)(cashOnHand[0] + Convert.ToInt32(concessionsIncome) - Convert.ToInt32(totalAnimalCost));
+                DisplayDailyAttendanceHistory(dayNumber, cashOnHand, totalAttractionScore, attendanceHistory);
             }
-            
+            while (!exit);
+
+            dayNumber[0] += 1;
+            cashOnHand[0] += todaysGainOrLoss;
         }
+
+        static void DisplayDailyAttendanceHistory(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore, List<int> attendanceHistory)
+        {
+            string numberSpacer = "";
+            int lineCounter = 1;
+            
+            Console.Clear();
+            DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
+            Console.WriteLine();
+            Console.WriteLine("------------------- ATTENDANCE HISTORY -------------------");
+            Console.WriteLine();
+
+            for (int i = 0; i < attendanceHistory.Count; i++)
+            {
+                numberSpacer = i < 9 ? "  " : " ";
+                Console.WriteLine($"Day {lineCounter}:{numberSpacer}{attendanceHistory[i]:N0} guests");
+                lineCounter++;
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to return to the Daily Zoo Report...");
+            Console.ReadLine();
+        }
+        
+        static void EndOfGame(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore, List<int> attendanceHistory,
+                              List<Animal> allAnimals, out bool continueProgram)
+        {
+            continueProgram = false;
+
+            Console.Clear();
+            Console.WriteLine("DDDDD        AAAA    YY      YY       222222      555555");
+            Console.WriteLine("DD  DD      AA  AA    YY    YY       22    22     55");
+            Console.WriteLine("DD   DD    AA    AA    YY  YY            22       555555");
+            Console.WriteLine("DD  DD    AA AAAA AA     YY             22            55");
+            Console.WriteLine("DDDDD    AA        AA    YY           22222222    555555");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Today is the day - it's the morning if Day 25!"));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("The collection agents from the bank will be here any moment, and " +
+                             "they won't leave without either a payment of $100,000 or the keys to the zoo."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You take one last walk around the zoo to visit all of your favorite " +
+                              "animals."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You thought Great Aunt Gertrude was crazy for building this " +
+                              "zoo way up here in the Andes. But now, after 25 long days, the place feels like home."));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+
+            Console.Clear();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("You see a black SUV pull up to the zoo entrance. " +
+                              "Two people, one short and one tall, step out in dark suits, heavy overcoats, and sunglasses."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("\"We trust you have our $100,000,\" says the short bank agent " +
+                              "with a wry grin. \"If not, we will gladly take this...establishment off of your hands.\""));
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+
+            if (cashOnHand[0] >= 100000)
+            {
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("You tremble slightly as you open the zoo's small cash vault to " +
+                                  "double-count the money inside. The bank agents won't leave until they have every penny."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("You start to count the bills: \"One...Two...Three...\""));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("\"...Ninety Nine Thousand Nine Hundred Ninety Eight...\""));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("\"...Ninety Nine Thousand Nine Hundred Ninety Nine...\""));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("$100,000! YOU DID IT! YOU SAVED THE ZOO!!!"));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Because of your hard work, Great Aunt Gertrude's " +
+                                  "legacy will live on for years to come!"));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("As the bank agents climb back into their SUV and " +
+                                  "drive away in a cloud of dust, you feel a sense of relief and joy."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Watching the dust settle, you hear the skwaks, " +
+                                  "growls, and kaws of the zoo animals greeting a new day."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Well, what are you waiting for? You have a zoo to run!"));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Sadly, with tears in your eyes, you explain that despite " +
+                                  "your best efforts you weren't able to come up with the money to save the zoo that your " +
+                                  "Great Aunt Gertrude worked so hard to build."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("The bank agents, silent for a moment, glance at each other " +
+                                  "and walk a short distance away to talk in private."));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("When they return, the tall agent removes her sunglasses."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("\"We couldn't help but notice the good condition that the " +
+                                  "zoo is in,\" she says. \"The bank does need to take ownership of this land, but it has no " +
+                                  "interest in operating a zoo.\""));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("\"We would like you to continue on as the " +
+                                  "director. As long as you keep it operating well, you can stay here and run it for " +
+                                  "as long as you would like."));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Tears well up in your eyes as you are flooded with " +
+                                  "gratitude and relief. \"Thank you!\" you manage to say. \"I'll do my very best!\""));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("As the bank agents climb back into their SUV and drive away, " +
+                                  "you hear the skwaks, growls, and kaws of the zoo animals greeting a new day."));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("As you watch the dust kicked up by the SUV settle on the dirt road, " +
+                                  "you smile to yourself."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Great Aunt Gertrude built this zoo to be a home for animals " +
+                                  "who need one, and she bequeathed it to you hoping you could make her dream a reality."));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("While you may not own the zoo outright, you've still made it " +
+                                  "a refuge for many animals. By doing so, you've fulfilled Great Aunt Gertrude's wishes and her " +
+                                  "legacy lives on."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("As you ponder these thoughts, you notice the animal noises behind " +
+                                  "getting louder. \"They must be getting hungry for breakfast,\" you say to yourself."));
+                Console.WriteLine();
+                Console.WriteLine(ConvertStatementToConsoleLengthLines("Well, what are you waiting for? You have a zoo to run!"));
+                Console.WriteLine();
+                Console.WriteLine("Press \"Enter\" to continue...");
+                Console.ReadLine();
+            }
+
+            int maxAttendance = 0;
+            int totalAttendance = 0;
+            foreach (int number in attendanceHistory)
+            {
+                totalAttendance += number;
+
+                if (number > maxAttendance)
+                {
+                    maxAttendance = number;
+                }
+            }
+
+            int totalAnimals = 0;
+            foreach (Animal animal in allAnimals)
+            {
+                totalAnimals += animal.Quantity;
+            }
+
+            string cashSign = "";
+            if (cashOnHand[0] < 0)
+            {
+                cashSign = "-";
+            }
+
+            Console.Clear();
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine("                   GAME RESULTS                   ");
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine();
+            Console.WriteLine($"TOTAL CASH: {cashSign}${Math.Abs(cashOnHand[0]):N2}");
+            Console.WriteLine($"ZOO ATTRACTION SCORE: {totalAttractionScore[0]:N0}");
+            Console.WriteLine($"TOTAL NUMBER OF ANIMALS: {totalAnimals:N0}");
+            Console.WriteLine($"TOTAL ATTENDANCE: {totalAttendance:N0}");
+            Console.WriteLine($"HIGEST DAILY ATTENDANCE: {maxAttendance:N0}");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Press \"Enter\" to continue...");
+            Console.ReadLine();
+        }
+        
         static void ExitProgram(bool thankYouForPlaying)
         {
             if(thankYouForPlaying)
