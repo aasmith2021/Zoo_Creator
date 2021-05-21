@@ -1363,7 +1363,7 @@ namespace ZooCreator
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
-                else if (userInput == "1")
+                else if (userInput == "1" && allConcessionsItems.Count < 10)
                 {
                     Console.WriteLine("--- ADD A NEW ITEM ---");
                     Console.WriteLine("Enter the name of the new item:");
@@ -1394,6 +1394,16 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
+                }
+                else if (userInput == "1" && allConcessionsItems.Count == 10)
+                {
+                    Console.WriteLine("Unfortuantely, your concessions stands can only stock a maximum of 10 items.");
+                    Console.WriteLine();
+                    Console.WriteLine("If you'd like to add a new item, delete an existing item first.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
+                    Console.ReadLine();
+
                 }
                 else if (userInput == "2")
                 {
@@ -1515,7 +1525,7 @@ namespace ZooCreator
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
-                else if (userInput == "1")
+                else if (userInput == "1" && allGiftShopItems.Count < 15)
                 {
                     Console.WriteLine("--- ADD A NEW ITEM ---");
                     Console.WriteLine("Enter the name of the new item:");
@@ -1546,6 +1556,16 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
+                }
+                else if (userInput == "1" && allGiftShopItems.Count == 15)
+                {
+                    Console.WriteLine("Unfortuantely, your gift shop can only stock a maximum of 15 items.");
+                    Console.WriteLine();
+                    Console.WriteLine("If you'd like to add a new item, delete an existing item first.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
+                    Console.ReadLine();
+
                 }
                 else if (userInput == "2")
                 {
