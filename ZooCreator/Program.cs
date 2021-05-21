@@ -308,8 +308,8 @@ namespace ZooCreator
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Once you are satisfied with the changes you have made, use the"));
             Console.WriteLine(ConvertStatementToConsoleLengthLines("\"A - Advance Day\" option to advance the day."));
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("After advancing the day, you will see the how money the zoo made or " +
-                              "lost during that day, as well as an updated history of the zoo's daily attendance."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("After advancing the day, you will see how much money the zoo made or " +
+                              "lost as well as an updated history of the zoo's daily attendance."));
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
             Console.ReadLine();
@@ -1925,7 +1925,7 @@ namespace ZooCreator
                 }
                 else
                 {
-                    Console.WriteLine($"TOTAL GAIN/LOSS: +${todaysGainOrLoss}");
+                    Console.WriteLine($"TOTAL GAIN/LOSS: +${todaysGainOrLoss:N2}");
                 }
                 Console.WriteLine();
                 Console.WriteLine();
