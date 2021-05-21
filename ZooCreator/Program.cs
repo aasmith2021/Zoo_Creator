@@ -1864,7 +1864,7 @@ namespace ZooCreator
                 concessionsIncome += percentOfAttendessWhoWillBuy * attendance;
             }
 
-            concessionsCostToRun = Math.Round((((decimal)allConcessionsItems.Count / 3) * 100) + 400, 2);
+            concessionsCostToRun = Math.Round((((decimal)allConcessionsItems.Count / 3) * 25) + 400, 2);
 
             //Calculate Gift Shop Income/Loss
             decimal giftShopIncome = 0;
@@ -1887,7 +1887,7 @@ namespace ZooCreator
 
             giftShopIncome = Math.Round(giftShopIncome, 2);
             
-            giftShopCostToRun = Math.Round((((decimal)allGiftShopItems.Count / 2) * 50) + 400, 2);
+            giftShopCostToRun = Math.Round((((decimal)allGiftShopItems.Count / 2) * 10) + 400, 2);
 
             decimal todaysIncome = ticketIncome + concessionsIncome + giftShopIncome;
             decimal todaysExpenses = totalAnimalCost + vetBill + concessionsCostToRun + giftShopCostToRun;
