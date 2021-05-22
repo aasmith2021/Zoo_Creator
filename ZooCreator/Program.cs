@@ -257,12 +257,14 @@ namespace ZooCreator
             Console.WriteLine(ConvertStatementToConsoleLengthLines("At the start of the game, the price of each ticket is set " +
                              "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $100.00."));
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("You may be tempted to raise the ticket price to earn more money, but " +
-                             "be careful! Your zoo's popularity is measured by it's overall \"attraction score\", which is determined " +
-                             "by the kind and number of animals in your zoo."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Your zoo's popularity is measured by it's overall \"attraction score\", " +
+                              "which is determined by the kind and number of animals in your zoo."));
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("If your zoo has a low attraction score but the ticket price is high, " +
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("If your zoo has a low attraction score and a high ticket price, " +
                              "fewer people will come to your zoo that day."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("If the weather is good, more people will come to the zoo. But, if " +
+                              "the weather conditions are poor, attendance won't be as high."));
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
             Console.ReadLine();
@@ -278,8 +280,10 @@ namespace ZooCreator
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Animals that are smaller or more common have a lower \"attraction score\" " +
                              "than animals that are larger or more rare."));
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("Each animal also has a \"daily cost\" to feed and " +
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("Each animal has a \"daily cost\" to feed and " +
                              "upkeep their habitat. So, the larger the animal, the higher the daily cost will be to care for it."));
+            Console.WriteLine();
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("There is also a daily veterinary bill based on the number of animals you have."));
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
             Console.ReadLine();
@@ -288,16 +292,16 @@ namespace ZooCreator
             Console.WriteLine();
             Console.WriteLine("<<< GIFT SHOP AND CONCESSIONS STANDS >>>");
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("You can add new items to the gift shop and concessions stands in the park. " +
-                             "Each time you add an item, you'll also set the item's price. The maximum price you can charge for an " +
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("At the start of the game, the gift shop and concessions stands are empty. " +
+                             "You can add, remove, and change the price of items whenever you'd like. The maximum price you can charge for an " +
                              "item is $100.00."));
             Console.WriteLine();
-            Console.WriteLine(ConvertStatementToConsoleLengthLines("You can add as many items as you would like to the gift shop and concessions " +
-                             "stands. However, the more items your gift shop or concessions stands offers for sale, the higher the daily cost " +
-                             "will be to operate the gift shop and concessions stands."));
+            Console.WriteLine(ConvertStatementToConsoleLengthLines("The concessions stands can hold 10 items, and the gift shop can hold 20. " +
+                             "The more items your concessions stands or gift shop offer for sale, the higher the daily cost " +
+                             "will be to operate them."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Every day, a certain percentage of the people who attended your park will " +
-                             "buy items at the gift shop and concessions stands. But, the higher the price of an item, the less likely it is " +
+                             "buy items at the gift shop and concessions stands. The higher the price of an item, the less likely it is " +
                              "that someone will buy it."));
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
@@ -311,13 +315,13 @@ namespace ZooCreator
             Console.WriteLine();
             Console.WriteLine("- Change the ticket price");
             Console.WriteLine("- Buy, sell, or rearrange zoo animals");
-            Console.WriteLine("- Create, delete, or change the price of gift shop and concessions items");
+            Console.WriteLine("- Add, remove, or change the price of gift shop and concessions items");
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Once you are satisfied with the changes you have made, use the"));
             Console.WriteLine(ConvertStatementToConsoleLengthLines("\"A - Advance Day\" option to advance the day."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("After advancing the day, you will see how much money the zoo made or " +
-                              "lost as well as an updated history of the zoo's daily attendance."));
+                              "lost that day. You can also view an updated history of the zoo's daily attendance."));
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
             Console.ReadLine();
@@ -948,28 +952,6 @@ namespace ZooCreator
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("-------------------------- BUY NEW ANIMALS --------------------------");
                 Console.WriteLine();
-
-                int totalPensFull = 0;
-                foreach (Animal animal in allAnimals)
-                {
-                    if (animal.Quantity > 0)
-                    {
-                        totalPensFull++;
-                    }
-                }
-
-                if (totalPensFull == 16)
-                {
-                    Console.WriteLine("Uh oh! All of the animal exhibits are full!");
-                    Console.WriteLine();
-                    Console.WriteLine("You'll have to sell some animals to create an empty exhibit in order\r\nto buy more.");
-                    Console.WriteLine();
-                    Console.WriteLine("Press \"Enter\" to continue...");
-                    Console.ReadLine();
-                    return;
-                }
-
-
                 Console.WriteLine("                                  ATTRACTION    DAILY    CURRENTLY");
                 Console.WriteLine("#   NAME                PRICE       SCORE        COST       OWN");
                 Console.WriteLine();
@@ -1009,25 +991,53 @@ namespace ZooCreator
                 Console.WriteLine();
                 Console.WriteLine("Enter the number of the animal you wish to buy, or \"E\" to exit:");
 
-                do
+                int totalPensFull = 0;
+                bool pensAreFull = false;
+                List<Animal> buyableAnimals = new List<Animal>();
+                List<string> allAnimalOptions = new List<string>();
+                List<string> buyableAnimalOptions = new List<string>();
+
+                for (int i = 0; i < allAnimals.Count; i++)
                 {
-                    optionNumberString = Console.ReadLine().ToUpper();
-                    Console.WriteLine();
+                    allAnimalOptions.Add((i + 1).ToString());
 
-                    if (Int32.TryParse(optionNumberString, out optionNumberInt) && optionNumberInt > 0 && optionNumberInt <= allAnimals.Count ||
-                        optionNumberString == "E")
+                    if (allAnimals[i].Quantity > 0)
                     {
-                        invalidEntry = false;
-                        break;
+                        totalPensFull++;
+                        buyableAnimals.Add(allAnimals[i]);
+                        buyableAnimalOptions.Add((i + 1).ToString());
                     }
-
-                    Console.WriteLine("Invalid entry. Please try again.");
                 }
-                while (invalidEntry);
 
-                if (optionNumberString == "E")
+                if (totalPensFull == 16)
+                {
+                    pensAreFull = true;
+                }
+
+                allAnimalOptions.Add("E");
+                buyableAnimalOptions.Add("E");
+                string userOption = GetUserInput(allAnimalOptions);
+
+                if (pensAreFull && !buyableAnimalOptions.Contains(userOption))
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("All of the animal exhibits are currently full, so you can't buy a new " +
+                                      "type of animal right now.\r\nBut, you can still add more animals to your current animal exhibits.");
+                    Console.WriteLine();
+                    Console.WriteLine("To buy a new type of animal, you'll have to sell some animals to create an " +
+                                      "empty exhibit.");
+                    Console.WriteLine();
+                    Console.WriteLine("Press \"Enter\" to continue...");
+                    Console.ReadLine();
+                    continue;
+                }
+                else if (userOption == "E")
                 {
                     break;
+                }
+                else
+                {
+                    optionNumberInt = Int32.Parse(userOption);
                 }
 
                 Console.WriteLine($"Enter the quantity of " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to buy, or \"C\" to cancel purchase:");
@@ -1352,7 +1362,7 @@ namespace ZooCreator
                 newItemPriceString = "";
                 Console.Clear();
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
-                Console.WriteLine("------ CHANGE CONCESSIONS STAND ITEMS ------");
+                Console.WriteLine("----------- CHANGE CONCESSIONS STAND ITEMS -----------");
                 DisplayCurrentSundries(allConcessionsItems);
                 DisplaySundriesOptionsMenu(validOptions, optionsText);
                 Console.WriteLine("Enter an option from the menu, or \"E\" to exit:");
@@ -1377,10 +1387,10 @@ namespace ZooCreator
                     Console.WriteLine("Enter the name of the new item:");
                     newItemNameOrSelection = Console.ReadLine();
 
-                    while (newItemNameOrSelection.Length > 21)
+                    while (newItemNameOrSelection.Length > 30)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid entry. Please enter an item name that is 21 characters or less.");
+                        Console.WriteLine("Invalid entry. Please enter an item name that is 30 characters or less.");
                         newItemNameOrSelection = Console.ReadLine();
                     }
 
@@ -1514,7 +1524,7 @@ namespace ZooCreator
                 newItemPriceString = "";
                 Console.Clear();
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
-                Console.WriteLine("------ CHANGE GIFT SHOP ITEMS ------");
+                Console.WriteLine("--------------- CHANGE GIFT SHOP ITEMS ---------------");
                 DisplayCurrentSundries(allGiftShopItems);
                 DisplaySundriesOptionsMenu(validOptions, optionsText);
                 Console.WriteLine("Enter an option from the menu, or \"E\" to exit:");
@@ -1533,16 +1543,16 @@ namespace ZooCreator
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
-                else if (userInput == "1" && allGiftShopItems.Count < 15)
+                else if (userInput == "1" && allGiftShopItems.Count < 20)
                 {
                     Console.WriteLine("--- ADD A NEW ITEM ---");
                     Console.WriteLine("Enter the name of the new item:");
                     newItemNameOrSelection = Console.ReadLine();
 
-                    while (newItemNameOrSelection.Length > 21)
+                    while (newItemNameOrSelection.Length > 30)
                     {
                         Console.WriteLine();
-                        Console.WriteLine("Invalid entry. Please enter an item name that is 21 characters or less.");
+                        Console.WriteLine("Invalid entry. Please enter an item name that is 30 characters or less.");
                         newItemNameOrSelection = Console.ReadLine();
                     }
 
@@ -1565,9 +1575,9 @@ namespace ZooCreator
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
                 }
-                else if (userInput == "1" && allGiftShopItems.Count == 15)
+                else if (userInput == "1" && allGiftShopItems.Count == 20)
                 {
-                    Console.WriteLine("Unfortuantely, your gift shop can only stock a maximum of 15 items.");
+                    Console.WriteLine("Unfortuantely, your gift shop can only stock a maximum of 20 items.");
                     Console.WriteLine();
                     Console.WriteLine("If you'd like to add a new item, delete an existing item first.");
                     Console.WriteLine();
@@ -1667,7 +1677,7 @@ namespace ZooCreator
         static void DisplayCurrentSundries(List<Sundry> allItems)
         {
             int lineNumber = 1;
-            int standardNameLength = 21;
+            int standardNameLength = 30;
             int lineSpacerLength;
             string lineSpacer;
 
