@@ -61,7 +61,7 @@ namespace ZooCreator
                                          out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
                                          out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory)
         {
-            dayNumber = new int[] { 24 };
+            dayNumber = new int[] { 1 };
             cashOnHand = new decimal[] { 25000.00m };
             totalAttractionScore = new int[] { 0 };
             allAnimals = GenerateZooAnimals();
