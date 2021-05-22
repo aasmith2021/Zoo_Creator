@@ -8,30 +8,37 @@ namespace ZooCreator
     {
         static void Main(string[] args)
         {
-            bool continueProgram = WelcomeMessage();
-            if (!continueProgram)
-            {
-                ExitProgram(false);
-                return;
-            }
-
-            CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
-                                 out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
-                                 out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory);
+            bool playAgain = false;
 
             do
             {
-                if (dayNumber[0] != 25)
+                playAgain = false;
+                bool continueProgram = WelcomeMessage();
+                if (!continueProgram)
                 {
-                    RunGame(dayNumber, cashOnHand, totalAttractionScore, allAnimals, allPhysicalSpaces, allConcessionsItems, allGiftShopItems,
-                            mainMenuOptions, ticketPrice, attendanceHistory, out continueProgram);
+                    ExitProgram(false);
+                    break;
                 }
-                else
+
+                CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
+                                     out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems,
+                                     out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory);
+                
+                do
                 {
-                    EndOfGame(dayNumber, cashOnHand, totalAttractionScore, attendanceHistory, allAnimals, out continueProgram);
+                    if (dayNumber[0] != 25)
+                    {
+                        RunGame(dayNumber, cashOnHand, totalAttractionScore, allAnimals, allPhysicalSpaces, allConcessionsItems, allGiftShopItems,
+                                mainMenuOptions, ticketPrice, attendanceHistory, out continueProgram);
+                    }
+                    else
+                    {
+                        EndOfGame(dayNumber, cashOnHand, totalAttractionScore, attendanceHistory, allAnimals, out continueProgram, out playAgain);
+                    }
                 }
+                while (continueProgram);
             }
-            while (continueProgram);
+            while (playAgain);
 
             ExitProgram(true);
         }
@@ -47,7 +54,7 @@ namespace ZooCreator
             allPhysicalSpaces = GeneratePhysicalSpaces();
             allConcessionsItems = new List<Sundry>();
             allGiftShopItems = new List<Sundry>();
-            mainMenuOptions = new List<string>() { "1", "2", "3", "4", "5", "6", "7", "A", "I", "E" };
+            mainMenuOptions = new List<string>() { "1", "2", "3", "4", "5", "6", "7", "A", "I", "X" };
             ticketPrice = new decimal[] { 5.00m };
             attendanceHistory = new List<int>();
 
@@ -103,7 +110,7 @@ namespace ZooCreator
                     DisplayInstructions();
                     break;
 
-                case "E":
+                case "X":
                     continueProgram = false;
                     break;
 
@@ -115,6 +122,7 @@ namespace ZooCreator
 
         static bool WelcomeMessage()
         {
+            Console.Clear();
             Console.WriteLine("WELCOME TO THE WORLD-FAMOUS");
             Console.WriteLine();
             Console.WriteLine("ZZZZZZ    OOOOOO    OOOOOO");
@@ -1022,18 +1030,18 @@ namespace ZooCreator
                     break;
                 }
 
-                Console.WriteLine($"Enter the quantity of " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to buy, or \"B\" to go back:");
+                Console.WriteLine($"Enter the quantity of " + allAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to buy, or \"C\" to cancel purchase:");
                 quantityString = Console.ReadLine().ToUpper();
                 Console.WriteLine();
 
-                while ((!Int32.TryParse(quantityString, out quantityInt) || quantityInt <= 0) && quantityString != "B")
+                while ((!Int32.TryParse(quantityString, out quantityInt) || quantityInt <= 0) && quantityString != "C")
                 {
                     Console.WriteLine("Invalid entry. Please try again.");
                     quantityString = Console.ReadLine().ToUpper();
                     Console.WriteLine();
                 }
 
-                if (quantityString == "B")
+                if (quantityString == "C")
                 {
                     continue;
                 }
@@ -1783,16 +1791,25 @@ namespace ZooCreator
 
                 Console.WriteLine();
                 optionNumberInt = Convert.ToInt32(optionNumberString);
-                Console.WriteLine($"Enter the quantity of " + sellableAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to sell:");
+                Console.WriteLine($"Enter the quantity of " + sellableAnimals[optionNumberInt - 1].Name.Pluralize() + " you wish to sell, or \"C\" to cancel sale:");
 
-                List<string> validSellQuantities = new List<string>();
+                List<string> validSellQuantities = new List<string>() { "C" };
                 for (int i = 1; i <= sellableAnimals[optionNumberInt - 1].Quantity; i++)
                 {
                     validSellQuantities.Add(i.ToString());
                 }
 
                 sellQuantityString = GetUserInput(validSellQuantities);
-                sellQuantityInt = Convert.ToInt32(sellQuantityString);
+
+                if (sellQuantityString == "C")
+                {
+                    continue;
+                }
+                else
+                {
+                    sellQuantityInt = Convert.ToInt32(sellQuantityString);
+                }
+
                 totalSale = Convert.ToInt32(Math.Floor(sellableAnimals[optionNumberInt - 1].Price * .6m)) * sellQuantityInt;
 
                 string sellAnimalName = sellQuantityInt != 1 ? sellableAnimals[optionNumberInt - 1].Name.Pluralize() : sellableAnimals[optionNumberInt - 1].Name;
@@ -1880,6 +1897,20 @@ namespace ZooCreator
 
             //Calculate Attendance
             int attendance;
+            int currentNumberOfAnimalExhibits = 0;
+            int totalNumberOfAnimalExhibits = 16;
+            decimal animalExhibitsMultiplier = 0;
+
+            foreach (Animal animal in allAnimals)
+            {
+                if (animal.Quantity > 0)
+                {
+                    currentNumberOfAnimalExhibits++;
+                }
+            }
+
+            animalExhibitsMultiplier = 1 + (((decimal)currentNumberOfAnimalExhibits / totalNumberOfAnimalExhibits) * .1m);
+
             decimal ticketPriceDec = ticketPrice[0];
             decimal idealTicketPrice = (decimal)Math.Round(18492560d + ((3.03197 - 18492560d) / (1 + Math.Pow((totalAttScore / 136183200000d), .8205253d))), 2) + 2;
             decimal actualVsIdealTktPriceDifference = Math.Round(ticketPriceDec - idealTicketPrice, 0);
@@ -1896,7 +1927,7 @@ namespace ZooCreator
             }
             else
             {
-                attendance = (int)((Math.Floor(.8m * (decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier);
+                attendance = (int)((Math.Floor(.8m * (decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier * animalExhibitsMultiplier);
             }
 
             attendanceHistory.Add(attendance);
@@ -2044,7 +2075,7 @@ namespace ZooCreator
         }
         
         static void EndOfGame(int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore, List<int> attendanceHistory,
-                              List<Animal> allAnimals, out bool continueProgram)
+                              List<Animal> allAnimals, out bool continueProgram, out bool playAgain)
         {
             continueProgram = false;
 
@@ -2231,8 +2262,34 @@ namespace ZooCreator
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to continue...");
             Console.ReadLine();
+
+            playAgain = DoYouWantToPlayAgain();
         }
         
+        static bool DoYouWantToPlayAgain()
+        {
+            bool playAgain = false;
+            
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Do you want to play again? Enter \"Y\" for Yes or \"N\" for No:");
+            string playAgainUserInput = Console.ReadLine().ToUpper();
+
+            while (playAgainUserInput != "N" && playAgainUserInput != "Y")
+            {
+                Console.WriteLine();
+                Console.WriteLine("Invalid entry. Please enter \"Y\" or \"N\".");
+                playAgainUserInput = Console.ReadLine().ToUpper();
+            }
+
+            if (playAgainUserInput == "Y")
+            {
+                playAgain = true;
+            }
+
+            return playAgain;
+        }
+
         static void ExitProgram(bool thankYouForPlaying)
         {
             if(thankYouForPlaying)
