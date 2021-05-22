@@ -1035,11 +1035,11 @@ namespace ZooCreator
                 if (pensAreFull && !buyableAnimalOptions.Contains(userOption))
                 {
                     Console.WriteLine();
-                    Console.WriteLine("All of the animal exhibits are currently full, so you can't buy a new " +
-                                      "type of animal right now.\r\nBut, you can still add more animals to your current animal exhibits.");
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("All of the animal exhibits are currently full, so you can't buy a new " +
+                                      "type of animal right now. But, you can still add more animals to your current animal exhibits."));
                     Console.WriteLine();
-                    Console.WriteLine("To buy a new type of animal, you'll have to sell some animals to create an " +
-                                      "empty exhibit.");
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("To buy a new type of animal, you'll have to sell some animals to " +
+                                      "create an empty exhibit."));
                     Console.WriteLine();
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
@@ -1101,8 +1101,9 @@ namespace ZooCreator
                     {
                         Console.WriteLine($"Success! You just purchased {quantityString} {animalName}!");
                         Console.WriteLine();
-                        Console.WriteLine($"Each type of animal can only live in one exhibit. Because you already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
-                                          $"\r\nyour new {animalName} {wereOrWas} added to exhibit {allAnimals[optionNumberInt - 1].Location}.");
+                        Console.WriteLine(ConvertStatementToConsoleLengthLines($"Each type of animal can only live in one exhibit. Because you " +
+                                          $"already have a {allAnimals[optionNumberInt - 1].Name} exhibit," +
+                                          $"your new {animalName} {wereOrWas} added to exhibit {allAnimals[optionNumberInt - 1].Location}."));
                         
                         int indexOfPhysicalSpace = 0;
                         for (int i = 0; i < allPhysicalSpaces.Length; i++)
@@ -1244,8 +1245,8 @@ namespace ZooCreator
                     Console.WriteLine();
                     Console.WriteLine("Hmm, all of the animal exhibits are currently full.");
                     Console.WriteLine();
-                    Console.WriteLine("If you'd like to arrange the zoo animals, you'll need\r\nto sell some animals to create " +
-                                      "an empty exhibit first.");
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("If you'd like to arrange the zoo animals, " +
+                                      "you'll need to sell some animals to create an empty exhibit first."));
                     Console.WriteLine();
                     Console.WriteLine("Press \"Enter\" to continue...");
                     Console.ReadLine();
@@ -1468,9 +1469,9 @@ namespace ZooCreator
                     {
                         Console.WriteLine();
                         Console.WriteLine("That was close! You almost deleted that item!");
-                        Console.WriteLine("It's good you kept it, because the zoo patrons should start buying " +
-                                           allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name +
-                                          "s any day now!");
+                        Console.WriteLine(ConvertStatementToConsoleLengthLines("It's good you kept it, because the zoo patrons " +
+                                          "should start buying " + allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name +
+                                          "s any day now!"));
                         Console.WriteLine();
                         Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
@@ -1630,8 +1631,8 @@ namespace ZooCreator
                     {
                         Console.WriteLine();
                         Console.WriteLine("Whew! The item was not deleted.");
-                        Console.WriteLine("Who knows? Maybe the " + allGiftShopItems[Convert.ToInt32(newItemNameOrSelection)-1].Name +
-                                          "s will start flying off the shelves!");
+                        Console.WriteLine(ConvertStatementToConsoleLengthLines("Who knows? Maybe the " + allGiftShopItems[Convert.ToInt32(newItemNameOrSelection)-1].Name +
+                                          "s will start flying off the shelves!"));
                         Console.WriteLine();
                         Console.WriteLine("Press \"Enter\" to continue...");
                         Console.ReadLine();
