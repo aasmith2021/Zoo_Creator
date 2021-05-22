@@ -269,7 +269,7 @@ namespace ZooCreator
                              "items in the gift shop and concessions stands."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("At the start of the game, the price of each ticket is set " +
-                             "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $100.00."));
+                             "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $50.00."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Your zoo's popularity is measured by it's overall \"attraction score\", " +
                               "which is determined by the kind and number of animals in your zoo."));
@@ -902,31 +902,23 @@ namespace ZooCreator
                 Console.WriteLine();
                 Console.WriteLine($"The current ticket price is: {ticketPrice[0]:C2}");
                 Console.WriteLine();
-                Console.WriteLine("Do you want to change the ticket price?");
-                Console.WriteLine();
-                Console.WriteLine("Enter \"Y\" for Yes to change the price, or \"E\" to exit:");
-
-                List<string> menuOptions = new List<string>() { "Y", "E" };
-                string userOption = GetUserInput(menuOptions);
-
-                if (userOption == "E")
-                {
-                    exit = true;
-                    break;
-                }
-
-                Console.WriteLine();
-                Console.WriteLine("Enter new ticket price:");
-                string newTicketPriceString = Console.ReadLine();
+                Console.WriteLine("Enter new ticket price, or \"E\" to exit:");
+                string newTicketPriceString = Console.ReadLine().ToUpper();
 
                 decimal newTicketPrice;
 
-                while (!Decimal.TryParse(newTicketPriceString, out newTicketPrice) || newTicketPrice < 0 || newTicketPrice > 100 ||
-                       ((newTicketPrice * 100) - Math.Floor(newTicketPrice * 100)) > 0)
+                while ((!Decimal.TryParse(newTicketPriceString, out newTicketPrice) || newTicketPrice < 0 || newTicketPrice > 50 ||
+                       ((newTicketPrice * 100) - Math.Floor(newTicketPrice * 100)) > 0) && newTicketPriceString != "E")
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Invalid price. Please enter a dollar amount that is $100.00 or less (ex: 3.00):");
-                    newTicketPriceString = Console.ReadLine();
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("Invalid entry. Please enter a dollar amount that is $50.00 or less (ex: 3.00), or \"E\" to exit:"));
+                    newTicketPriceString = Console.ReadLine().ToUpper();
+                }
+
+                if (newTicketPriceString == "E")
+                {
+                    exit = true;
+                    break;
                 }
 
                 ticketPrice[0] = newTicketPrice;
@@ -1162,7 +1154,7 @@ namespace ZooCreator
                         }
                         else
                         {
-                            Console.WriteLine("Hmm, that exhibit is already taken by a different type of animal. Select a different space for these animals.");
+                            Console.WriteLine(ConvertStatementToConsoleLengthLines("Hmm, that exhibit is already taken by a different type of animal. Select a different space for these animals."));
                             spaceOption = Console.ReadLine().ToUpper();
                             Console.WriteLine();
 
@@ -1452,8 +1444,8 @@ namespace ZooCreator
                     Console.WriteLine("Enter the number of the item you want to delete:");
                     newItemNameOrSelection = GetUserInput(validItemOptions);
                     Console.WriteLine();
-                    Console.WriteLine("Are you sure you want to delete the " + allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name +
-                                      " item? Enter \"Y\" or \"N\":");
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("Are you sure you want to delete the " + allConcessionsItems[Convert.ToInt32(newItemNameOrSelection) - 1].Name +
+                                      " item? Enter \"Y\" or \"N\":"));
                     confirmChoice = GetUserInput(new List<string>() { "Y", "N" });
 
                     if (confirmChoice == "Y")
@@ -1614,8 +1606,8 @@ namespace ZooCreator
                     Console.WriteLine("Enter the number of the item you want to delete:");
                     newItemNameOrSelection = GetUserInput(validItemOptions);
                     Console.WriteLine();
-                    Console.WriteLine("Are you sure you want to delete the " + allGiftShopItems[Convert.ToInt32(newItemNameOrSelection)-1].Name +
-                                      " item? Enter \"Y\" or \"N\":");
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("Are you sure you want to delete the " + allGiftShopItems[Convert.ToInt32(newItemNameOrSelection)-1].Name +
+                                      " item? Enter \"Y\" or \"N\":"));
                     confirmChoice = GetUserInput(new List<string>() { "Y", "N" });
 
                     if (confirmChoice == "Y")
@@ -1937,13 +1929,16 @@ namespace ZooCreator
             animalExhibitsMultiplier = 1 + (((decimal)currentNumberOfAnimalExhibits / totalNumberOfAnimalExhibits) * .1m);
 
             decimal ticketPriceDec = ticketPrice[0];
-            decimal idealTicketPrice = (decimal)Math.Round(18492560d + ((3.03197 - 18492560d) / (1 + Math.Pow((totalAttScore / 136183200000d), .8205253d))), 2) + 2;
+            decimal idealTicketPrice = (decimal)Math.Round(7505493d + ((1.718528d - 7505493d) / (1 + Math.Pow((totalAttScore / 542546100000d), .7081755d))), 2) + 2;
             decimal actualVsIdealTktPriceDifference = Math.Round(ticketPriceDec - idealTicketPrice, 0);
             decimal ticketPriceTooHighPenaltyMulitplier = 1m;
 
             for (int i = 0; i < actualVsIdealTktPriceDifference; i++)
             {
-                    ticketPriceTooHighPenaltyMulitplier -= .01m;
+                if (ticketPriceTooHighPenaltyMulitplier >= .025m)
+                {
+                    ticketPriceTooHighPenaltyMulitplier -= .025m;
+                }
             }
 
             if (totalAttScore == 0)
@@ -1952,7 +1947,7 @@ namespace ZooCreator
             }
             else
             {
-                attendance = (int)((Math.Floor(.8m * (decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier * animalExhibitsMultiplier);
+                attendance = (int)((Math.Floor((decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier * animalExhibitsMultiplier);
             }
 
             attendanceHistory.Add(attendance);
@@ -2027,7 +2022,7 @@ namespace ZooCreator
                 DisplayDashboard(dayNumber, cashOnHand, totalAttractionScore);
                 Console.WriteLine("---------------------- DAILY ZOO REPORT ----------------------");
                 Console.WriteLine();
-                Console.WriteLine($"Today's Attendance: {attendance}");
+                Console.WriteLine($"Today's Attendance: {attendance:N0}");
                 Console.WriteLine($"Weather: {todaysWeather}");
                 Console.WriteLine();
                 Console.WriteLine("----------------- INCOME -----------------");
