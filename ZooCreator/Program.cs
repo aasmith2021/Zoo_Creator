@@ -1947,7 +1947,12 @@ namespace ZooCreator
             }
             else
             {
-                attendance = (int)((Math.Floor((decimal)Math.Pow((totalAttScore / 100), 1.8)) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier * animalExhibitsMultiplier);
+                attendance = (int)((decimal)(Math.Round(5716.327d + ((120.4226d - 5716.327d) / (1d + Math.Pow((totalAttScore / 17999.61d), 1.879935d))), 2) + 5) * (decimal)(1 + weatherCompositePercentage) * ticketPriceTooHighPenaltyMulitplier * animalExhibitsMultiplier);
+            }
+
+            if (totalAttScore >= 50000 && attendance > 5500)
+            {
+                attendance = 5500;
             }
 
             attendanceHistory.Add(attendance);
