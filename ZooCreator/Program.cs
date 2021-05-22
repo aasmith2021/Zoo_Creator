@@ -16,8 +16,18 @@ namespace ZooCreator
                 bool continueProgram = WelcomeMessage();
                 if (!continueProgram)
                 {
-                    ExitProgram(false);
-                    break;
+                    playAgain = DoYouWantToPlayAgain();
+
+                    if(playAgain)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ExitProgram();
+                        break;
+                    }
+
                 }
 
                 CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
@@ -37,17 +47,21 @@ namespace ZooCreator
                     }
                 }
                 while (continueProgram);
+
+                if (!playAgain)
+                {
+                    ExitProgram();
+                }
+
             }
             while (playAgain);
-
-            ExitProgram(true);
         }
 
         static void CreateStartingValues(out int[] dayNumber, out decimal[] cashOnHand, out int[] totalAttractionScore, out List<Animal> allAnimals,
                                          out PhysicalSpace[] allPhysicalSpaces, out List<Sundry> allConcessionsItems, out List<Sundry> allGiftShopItems, 
                                          out List<string> mainMenuOptions, out decimal[] ticketPrice, out List<int> attendanceHistory)
         {
-            dayNumber = new int[] { 1 };
+            dayNumber = new int[] { 24 };
             cashOnHand = new decimal[] { 25000.00m };
             totalAttractionScore = new int[] { 0 };
             allAnimals = GenerateZooAnimals();
@@ -2042,7 +2056,7 @@ namespace ZooCreator
                 }
                 Console.WriteLine();
                 Console.WriteLine();
-                Console.WriteLine("Enter \"H\" to see daily attendance history, or \"Enter\" to exit:");
+                Console.WriteLine("Enter \"H\" to see daily attendance history, or \"Enter\" to continue...");
 
                 List<string> menuOptions = new List<string>() { "H", "" };
                 string userOption = GetUserInput(menuOptions);
@@ -2300,15 +2314,11 @@ namespace ZooCreator
             return playAgain;
         }
 
-        static void ExitProgram(bool thankYouForPlaying)
+        static void ExitProgram()
         {
-            if(thankYouForPlaying)
-            {
-                Console.WriteLine();
-                Console.WriteLine();
-                Console.WriteLine("Thank you for playing! Goodbye!");
-            }
-
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine("Thank you for playing! Goodbye!");
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine("Press \"Enter\" to exit the game...");
