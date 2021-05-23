@@ -934,9 +934,7 @@ namespace ZooCreator
         static void BuyNewAnimals(PhysicalSpace[] allPhysicalSpaces, List<Animal> allAnimals, int[] dayNumber, decimal[] cashOnHand, int[] totalAttractionScore)
         {            
             bool exitMenu = false;
-            bool invalidEntry;
             bool animalsNotPlaced;
-            string optionNumberString = "";
             int optionNumberInt = 0;
             string quantityString = "";
             int quantityInt;
@@ -947,7 +945,6 @@ namespace ZooCreator
             do
             {
                 Console.Clear();
-                invalidEntry = true;
                 animalsNotPlaced = true;
                 bool showMapTitle = true;
                 spaceOption = "";
