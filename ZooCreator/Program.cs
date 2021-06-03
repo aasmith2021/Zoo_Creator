@@ -269,7 +269,7 @@ namespace ZooCreator
                              "items in the gift shop and concessions stands."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("At the start of the game, the price of each ticket is set " +
-                             "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $50.00."));
+                             "to $5.00, but you can change it at any time. The maximum price you can set for a ticket is $25.00."));
             Console.WriteLine();
             Console.WriteLine(ConvertStatementToConsoleLengthLines("Your zoo's popularity is measured by it's overall \"attraction score\", " +
                               "which is determined by the kind and number of animals in your zoo."));
@@ -907,11 +907,11 @@ namespace ZooCreator
 
                 decimal newTicketPrice;
 
-                while ((!Decimal.TryParse(newTicketPriceString, out newTicketPrice) || newTicketPrice < 0 || newTicketPrice > 50 ||
+                while ((!Decimal.TryParse(newTicketPriceString, out newTicketPrice) || newTicketPrice < 0 || newTicketPrice > 25 ||
                        ((newTicketPrice * 100) - Math.Floor(newTicketPrice * 100)) > 0) && newTicketPriceString != "E")
                 {
                     Console.WriteLine();
-                    Console.WriteLine(ConvertStatementToConsoleLengthLines("Invalid entry. Please enter a dollar amount that is $50.00 or less (ex: 3.00), or \"E\" to exit:"));
+                    Console.WriteLine(ConvertStatementToConsoleLengthLines("Invalid entry. Please enter a dollar amount that is $25.00 or less (ex: 3.00), or \"E\" to exit:"));
                     newTicketPriceString = Console.ReadLine().ToUpper();
                 }
 
@@ -1925,9 +1925,9 @@ namespace ZooCreator
 
             animalExhibitsMultiplier = 1 + (((decimal)currentNumberOfAnimalExhibits / totalNumberOfAnimalExhibits) * .1m);
 
-            decimal ticketPriceDec = ticketPrice[0];
+            decimal ticketPriceDecimal = ticketPrice[0];
             decimal idealTicketPrice = (decimal)Math.Round(7505493d + ((1.718528d - 7505493d) / (1 + Math.Pow((totalAttScore / 542546100000d), .7081755d))), 2) + 2;
-            decimal actualVsIdealTktPriceDifference = Math.Round(ticketPriceDec - idealTicketPrice, 0);
+            decimal actualVsIdealTktPriceDifference = Math.Round(ticketPriceDecimal - idealTicketPrice, 0);
             decimal ticketPriceTooHighPenaltyMulitplier = 1m;
 
             for (int i = 0; i < actualVsIdealTktPriceDifference; i++)
